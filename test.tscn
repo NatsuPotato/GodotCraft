@@ -1,12 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://dfx6sfc48bl3l"]
+[gd_scene load_steps=5 format=3 uid="uid://dfx6sfc48bl3l"]
 
+[ext_resource type="Texture2D" uid="uid://dpkfhf78aftcj" path="res://icon.svg" id="1_juj8h"]
 [ext_resource type="Script" path="res://tile_grid.gd" id="1_k5fgt"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
+albedo_texture = ExtResource("1_juj8h")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_12hyp"]
 
 [node name="World" type="Node3D"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="TileGrid" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_yhiwt")
 mesh = SubResource("ArrayMesh_12hyp")
 script = ExtResource("1_k5fgt")
 
