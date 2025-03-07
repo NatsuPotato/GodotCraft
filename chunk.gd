@@ -35,11 +35,13 @@ func get_tile_type(x:int, y:int, z:int) -> int:
 	
 	return tile_data[x * 1024 + y * 32 + z]
 
-func remesh():
+func get_tile_is_transparent(x:int, y:int, z:int) -> bool:
 	
-	var surface_array = []
-	surface_array.resize(Mesh.ARRAY_MAX)
+	return get_tile_type(x, y, z) == 0
 
+func remesh():
+
+	# generate arrays representing the mesh
 	var verts = PackedVector3Array()
 	var uvs = PackedVector2Array()
 	var normals = PackedVector3Array()
@@ -58,31 +60,33 @@ func remesh():
 				if (tile_type != 0):
 					
 					# hidden face optimization
-					if get_tile_type(x + 1, y, z) == 0:
+					if get_tile_is_transparent(x + 1, y, z):
 						index = generate_quad(index, Vector3(x, y, z), 0, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_type(x - 1, y, z) == 0:
+					if get_tile_is_transparent(x - 1, y, z):
 						index = generate_quad(index, Vector3(x, y, z), 1, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_type(x, y + 1, z) == 0:
+					if get_tile_is_transparent(x, y + 1, z):
 						index = generate_quad(index, Vector3(x, y, z), 2, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_type(x, y - 1, z) == 0:
+					if get_tile_is_transparent(x, y - 1, z):
 						index = generate_quad(index, Vector3(x, y, z), 3, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_type(x, y, z + 1) == 0:
+					if get_tile_is_transparent(x, y, z + 1):
 						index = generate_quad(index, Vector3(x, y, z), 4, tile_type, verts, uvs, normals, indices, collision_verts)
 						
-					if get_tile_type(x, y, z - 1) == 0:
+					if get_tile_is_transparent(x, y, z - 1):
 						index = generate_quad(index, Vector3(x, y, z), 5, tile_type, verts, uvs, normals, indices, collision_verts)
 
-	# assign arrays to surface array
+	# create mesh and collision mesh from arrays
+	var surface_array = []
+	surface_array.resize(Mesh.ARRAY_MAX)
+	
 	surface_array[Mesh.ARRAY_VERTEX] = verts
 	surface_array[Mesh.ARRAY_TEX_UV] = uvs
 	surface_array[Mesh.ARRAY_NORMAL] = normals
 	surface_array[Mesh.ARRAY_INDEX] = indices
 
-	# create mesh from array
 	MESH.mesh = ArrayMesh.new()
 	MESH.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
 	
