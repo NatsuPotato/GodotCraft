@@ -18,7 +18,8 @@ albedo_texture = ExtResource("1_u6huv")
 metallic_specular = 0.0
 texture_filter = 0
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_juqae"]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lhjpb"]
+height = 1.8
 
 [node name="World" type="Node3D"]
 
@@ -45,6 +46,9 @@ script = ExtResource("3_ous5n")
 camera = NodePath("Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+fov = 120.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
-shape = SubResource("BoxShape3D_juqae")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CylinderShape3D_lhjpb")

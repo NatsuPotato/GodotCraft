@@ -4,7 +4,6 @@ extends StaticBody3D
 @export var COLLIDER : CollisionShape3D
 
 # TODO hidden face optimization
-# TODO add dynamic collision generation
 
 var tile_data = PackedByteArray()
 
