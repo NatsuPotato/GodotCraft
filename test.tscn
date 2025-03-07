@@ -1,8 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dfx6sfc48bl3l"]
+[gd_scene load_steps=9 format=3 uid="uid://dfx6sfc48bl3l"]
 
 [ext_resource type="Script" path="res://chunk.gd" id="1_k5fgt"]
 [ext_resource type="Texture2D" uid="uid://c5btooyrj57at" path="res://terrain.png" id="1_u6huv"]
-[ext_resource type="Script" path="res://freecam.gd" id="3_ous5n"]
+[ext_resource type="Script" path="res://player_controller.gd" id="3_ous5n"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]
 
@@ -16,14 +16,11 @@ sky = SubResource("Sky_2updk")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
 albedo_texture = ExtResource("1_u6huv")
 metallic_specular = 0.0
-uv1_scale = Vector3(0.063, 0.063, 0.063)
 texture_filter = 0
 
-[node name="World" type="Node3D"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_juqae"]
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 36, 0)
-script = ExtResource("3_ous5n")
+[node name="World" type="Node3D"]
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 0, 8.15333, 0)
@@ -41,3 +38,13 @@ COLLIDER = NodePath("Collider")
 [node name="Mesh" type="MeshInstance3D" parent="Chunk"]
 material_override = SubResource("StandardMaterial3D_yhiwt")
 skeleton = NodePath("../..")
+
+[node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 36, 16)
+script = ExtResource("3_ous5n")
+camera = NodePath("Camera3D")
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+shape = SubResource("BoxShape3D_juqae")

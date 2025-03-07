@@ -41,6 +41,9 @@ func remesh():
 	var normals = PackedVector3Array()
 	var indices = PackedInt32Array()
 	
+	# naturally divided into triples that define triangles
+	var collision_verts = PackedVector3Array()
+	
 	var index = 0
 	
 	for x in 32:
@@ -50,7 +53,7 @@ func remesh():
 				var tile_type = tile_data[x * 1024 + y * 32 + z]
 				if (tile_type != 0):
 					for rot in range(0, 6):
-						index = generate_quad(index, Vector3(x, y, z), rot, tile_type, verts, uvs, normals, indices)
+						index = generate_quad(index, Vector3(x, y, z), rot, tile_type, verts, uvs, normals, indices, collision_verts)
 
 	# assign arrays to surface array
 	surface_array[Mesh.ARRAY_VERTEX] = verts
@@ -61,54 +64,76 @@ func remesh():
 	# create mesh from array
 	MESH.mesh = ArrayMesh.new()
 	MESH.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
+	
+	COLLIDER.shape = ConcavePolygonShape3D.new()
+	COLLIDER.shape.set_faces(collision_verts)
 
 #https://docs.godotengine.org/en/stable/tutorials/3d/procedural_geometry/arraymesh.html#doc-arraymesh
 static func generate_quad(
-		start_index : int,
-		pos         : Vector3, # grid space
-		rot         : int, # [0, 5]
-		tile_type   : int, # for UV mapping to spritemap
-		verts       : PackedVector3Array,
-		uvs         : PackedVector2Array,
-		normals     : PackedVector3Array,
-		indices     : PackedInt32Array
+		start_index     : int,
+		pos             : Vector3, # grid space
+		rot             : int, # [0, 5]
+		tile_type       : int, # for UV mapping to spritemap
+		verts           : PackedVector3Array,
+		uvs             : PackedVector2Array,
+		normals         : PackedVector3Array,
+		indices         : PackedInt32Array,
+		collision_verts : PackedVector3Array
 	) -> int:
-		
+	
+	var v0 : Vector3
+	var v1 : Vector3
+	var v2 : Vector3
+	var v3 : Vector3
+	
 	if (rot == 0):
-		verts.append(pos + Vector3(1, 0, 1))
-		verts.append(pos + Vector3(1, 1, 0))
-		verts.append(pos + Vector3(1, 0, 0))
-		verts.append(pos + Vector3(1, 1, 1))
+		v0 = pos + Vector3(1, 0, 1)
+		v1 = pos + Vector3(1, 1, 0)
+		v2 = pos + Vector3(1, 0, 0)
+		v3 = pos + Vector3(1, 1, 1)
 		
 	if (rot == 1):
-		verts.append(pos)
-		verts.append(pos + Vector3(0, 1, 1))
-		verts.append(pos + Vector3(0, 0, 1))
-		verts.append(pos + Vector3(0, 1, 0))
+		v0 = pos
+		v1 = pos + Vector3(0, 1, 1)
+		v2 = pos + Vector3(0, 0, 1)
+		v3 = pos + Vector3(0, 1, 0)
 		
 	if (rot == 2):
-		verts.append(pos + Vector3(0, 1, 0))
-		verts.append(pos + Vector3(1, 1, 1))
-		verts.append(pos + Vector3(0, 1, 1))
-		verts.append(pos + Vector3(1, 1, 0))
+		v0 = pos + Vector3(0, 1, 0)
+		v1 = pos + Vector3(1, 1, 1)
+		v2 = pos + Vector3(0, 1, 1)
+		v3 = pos + Vector3(1, 1, 0)
 		
 	if (rot == 3):
-		verts.append(pos + Vector3(0, 0, 0))
-		verts.append(pos + Vector3(1, 0, 1))
-		verts.append(pos + Vector3(1, 0, 0))
-		verts.append(pos + Vector3(0, 0, 1))
+		v0 = pos
+		v1 = pos + Vector3(1, 0, 1)
+		v2 = pos + Vector3(1, 0, 0)
+		v3 = pos + Vector3(0, 0, 1)
 	
 	if (rot == 4):
-		verts.append(pos + Vector3(0, 0, 1))
-		verts.append(pos + Vector3(1, 1, 1))
-		verts.append(pos + Vector3(1, 0, 1))
-		verts.append(pos + Vector3(0, 1, 1))
+		v0 = pos + Vector3(0, 0, 1)
+		v1 = pos + Vector3(1, 1, 1)
+		v2 = pos + Vector3(1, 0, 1)
+		v3 = pos + Vector3(0, 1, 1)
 		
 	if (rot == 5):
-		verts.append(pos + Vector3(1, 0, 0))
-		verts.append(pos + Vector3(0, 1, 0))
-		verts.append(pos)
-		verts.append(pos + Vector3(1, 1, 0))
+		v0 = pos + Vector3(1, 0, 0)
+		v1 = pos + Vector3(0, 1, 0)
+		v2 = pos
+		v3 = pos + Vector3(1, 1, 0)
+	
+	verts.append(v0)
+	verts.append(v1)
+	verts.append(v2)
+	verts.append(v3)
+	
+	collision_verts.append(v0)
+	collision_verts.append(v1)
+	collision_verts.append(v2)
+	
+	collision_verts.append(v0)
+	collision_verts.append(v3)
+	collision_verts.append(v1)
 	
 	if (rot == 0):
 		for i in range(0, 4): normals.append(Vector3(1, 0, 0))
@@ -123,10 +148,10 @@ static func generate_quad(
 	elif (rot == 5):
 		for i in range(0, 4): normals.append(Vector3(0, 0, -1))
 
-	uvs.append(Vector2(tile_type, 1))
-	uvs.append(Vector2(tile_type + 1, 0))
-	uvs.append(Vector2(tile_type + 1, 1))
-	uvs.append(Vector2(tile_type, 0))
+	uvs.append(Vector2(tile_type * 0.0625, 0.0625))
+	uvs.append(Vector2(tile_type * 0.0625 + 0.0625, 0))
+	uvs.append(Vector2(tile_type * 0.0625 + 0.0625, 0.0625))
+	uvs.append(Vector2(tile_type * 0.0625, 0))
 
 	# connect vertices into triangles
 	indices.append(start_index)
