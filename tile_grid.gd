@@ -13,16 +13,28 @@ static func generate_quad(
 	) -> int:
 		
 	if (rot == 0):
+		verts.append(pos + Vector3(1, 0, 1))
+		verts.append(pos + Vector3(1, 1, 0))
+		verts.append(pos + Vector3(1, 0, 0))
+		verts.append(pos + Vector3(1, 1, 1))
+		
+	if (rot == 1):
 		verts.append(pos)
 		verts.append(pos + Vector3(0, 1, 1))
 		verts.append(pos + Vector3(0, 0, 1))
 		verts.append(pos + Vector3(0, 1, 0))
 		
-	if (rot == 1):
-		verts.append(pos + Vector3(1, 0, 1))
-		verts.append(pos + Vector3(1, 1, 0))
-		verts.append(pos + Vector3(1, 0, 0))
+	if (rot == 2):
+		verts.append(pos + Vector3(0, 1, 0))
 		verts.append(pos + Vector3(1, 1, 1))
+		verts.append(pos + Vector3(0, 1, 1))
+		verts.append(pos + Vector3(1, 1, 0))
+		
+	if (rot == 3):
+		verts.append(pos + Vector3(0, 0, 0))
+		verts.append(pos + Vector3(1, 0, 1))
+		verts.append(pos + Vector3(1, 0, 0))
+		verts.append(pos + Vector3(0, 0, 1))
 	
 	if (rot == 4):
 		verts.append(pos + Vector3(0, 0, 1))
@@ -76,11 +88,8 @@ func _ready():
 	var indices = PackedInt32Array()
 	
 	var index = 0
-	#for rot in range(0, 6):
-	index = generate_quad(index, Vector3(0, 0, 0), 4, verts, uvs, normals, indices)
-	index = generate_quad(index, Vector3(0, 0, 0), 5, verts, uvs, normals, indices)
-	index = generate_quad(index, Vector3(0, 0, 0), 0, verts, uvs, normals, indices)
-	index = generate_quad(index, Vector3(0, 0, 0), 1, verts, uvs, normals, indices)
+	for rot in range(0, 6):
+		index = generate_quad(index, Vector3(0, 0, 0), rot, verts, uvs, normals, indices)
 
 	# assign arrays to surface array
 	surface_array[Mesh.ARRAY_VERTEX] = verts
