@@ -4,12 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://c5btooyrj57at" path="res://terrain.png" id="1_u6huv"]
 [ext_resource type="Script" path="res://freecam.gd" id="3_ous5n"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
-albedo_texture = ExtResource("1_u6huv")
-metallic_specular = 0.0
-uv1_scale = Vector3(0.063, 0.063, 0.063)
-texture_filter = 0
-
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]
 
 [sub_resource type="Sky" id="Sky_2updk"]
@@ -19,14 +13,16 @@ sky_material = SubResource("ProceduralSkyMaterial_ontqq")
 background_mode = 2
 sky = SubResource("Sky_2updk")
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
+albedo_texture = ExtResource("1_u6huv")
+metallic_specular = 0.0
+uv1_scale = Vector3(0.063, 0.063, 0.063)
+texture_filter = 0
+
 [node name="World" type="Node3D"]
 
-[node name="Chunk" type="MeshInstance3D" parent="."]
-material_override = SubResource("StandardMaterial3D_yhiwt")
-script = ExtResource("1_k5fgt")
-
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 36, 0)
 script = ExtResource("3_ous5n")
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
@@ -34,3 +30,14 @@ transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.43
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_0x2lj")
+
+[node name="Chunk" type="StaticBody3D" parent="." node_paths=PackedStringArray("MESH", "COLLIDER")]
+script = ExtResource("1_k5fgt")
+MESH = NodePath("Mesh")
+COLLIDER = NodePath("Collider")
+
+[node name="Collider" type="CollisionShape3D" parent="Chunk"]
+
+[node name="Mesh" type="MeshInstance3D" parent="Chunk"]
+material_override = SubResource("StandardMaterial3D_yhiwt")
+skeleton = NodePath("../..")

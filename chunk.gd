@@ -1,7 +1,10 @@
-extends MeshInstance3D
+extends StaticBody3D
 
-# TODO dynamic texturing
+@export var MESH : MeshInstance3D
+@export var COLLIDER : CollisionShape3D
+
 # TODO hidden face optimization
+# TODO add dynamic collision generation
 
 var tile_data = PackedByteArray()
 
@@ -56,8 +59,8 @@ func remesh():
 	surface_array[Mesh.ARRAY_INDEX] = indices
 
 	# create mesh from array
-	mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
+	MESH.mesh = ArrayMesh.new()
+	MESH.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
 
 #https://docs.godotengine.org/en/stable/tutorials/3d/procedural_geometry/arraymesh.html#doc-arraymesh
 static func generate_quad(
