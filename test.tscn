@@ -29,11 +29,8 @@ script = ExtResource("1_k5fgt")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
 script = ExtResource("3_ous5n")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="Camera3D"]
-
 [node name="Sun" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.706625, 0.461642, -0.536253, 0, 0.757861, 0.652416, 0.707588, -0.461014, 0.535524, 0, 8.15333, 0)
-light_energy = 0.0
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_0x2lj")
