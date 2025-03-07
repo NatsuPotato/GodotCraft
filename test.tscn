@@ -1,11 +1,12 @@
 [gd_scene load_steps=9 format=3 uid="uid://dfx6sfc48bl3l"]
 
-[ext_resource type="Texture2D" uid="uid://dpkfhf78aftcj" path="res://icon.svg" id="1_juj8h"]
 [ext_resource type="Script" path="res://tile_grid.gd" id="1_k5fgt"]
+[ext_resource type="Texture2D" uid="uid://sg0dubdw1a38" path="res://cobblestone.png" id="1_uts3j"]
 [ext_resource type="Script" path="res://freecam.gd" id="3_ous5n"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
-albedo_texture = ExtResource("1_juj8h")
+albedo_texture = ExtResource("1_uts3j")
+texture_filter = 0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_12hyp"]
 

@@ -1,7 +1,9 @@
 extends MeshInstance3D
 
-#https://docs.godotengine.org/en/stable/tutorials/3d/procedural_geometry/arraymesh.html#doc-arraymesh
+# TODO dynamic texturing
+# TODO hidden face optimization
 
+#https://docs.godotengine.org/en/stable/tutorials/3d/procedural_geometry/arraymesh.html#doc-arraymesh
 static func generate_quad(
 		start_index : int,
 		pos         : Vector3, # grid space
@@ -79,6 +81,26 @@ static func generate_quad(
 
 func _ready():
 	
+	# generate grid
+	var tile_data = PackedByteArray()
+	
+	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
+	var noise = FastNoiseLite.new()
+	noise.set_seed(RandomNumberGenerator.new().randi())
+	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
+	
+	for x in range(0, 32):
+		for y in range(0, 32):
+			for z in range(0, 32):
+				
+				if (noise.get_noise_3d(x, y, z) - y * 0.01 > 0):
+					tile_data.append(1)
+				else:
+					tile_data.append(0)
+	
+	
+	
+	# generate mesh
 	var surface_array = []
 	surface_array.resize(Mesh.ARRAY_MAX)
 
@@ -87,17 +109,14 @@ func _ready():
 	var normals = PackedVector3Array()
 	var indices = PackedInt32Array()
 	
-	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
-	var noise = FastNoiseLite.new()
-	noise.set_seed(RandomNumberGenerator.new().randi())
-	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
-	
 	var index = 0
-	for x in range(0, 100):
-		for y in range(0, 20):
-			for z in range(0, 100):
-				for rot in range(0, 6):
-					if (noise.get_noise_3d(x, y, z) - y * 0.01 > 0):
+	
+	for x in range(0, 32):
+		for y in range(0, 32):
+			for z in range(0, 32):
+				
+				if (tile_data[x + y * 32 + z * 1024] != 0):
+					for rot in range(0, 6):
 						index = generate_quad(index, Vector3(x, y, z), rot, verts, uvs, normals, indices)
 
 	# assign arrays to surface array
