@@ -84,7 +84,11 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="FPS" type="RichTextLabel" parent="DebugInfo"]
-offset_right = 167.0
-offset_bottom = 39.0
-text = "142308 fps"
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 210.0
+offset_bottom = 40.0
+scale = Vector2(2, 2)
+text = "1234 fps"
+autowrap_mode = 0
 script = ExtResource("6_osfrn")
