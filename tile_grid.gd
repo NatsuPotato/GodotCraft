@@ -2,28 +2,44 @@ extends MeshInstance3D
 
 #https://docs.godotengine.org/en/stable/tutorials/3d/procedural_geometry/arraymesh.html#doc-arraymesh
 
-func generate_quad(
+static func generate_quad(
 		start_index : int,
+		pos         : Vector3, # grid space
+		rot         : int, # [0, 5]
 		verts       : PackedVector3Array,
 		uvs         : PackedVector2Array,
 		normals     : PackedVector3Array,
 		indices     : PackedInt32Array
 	) -> int:
 	
-	verts.append(Vector3(0, 0, 0))
-	normals.append(Vector3(0, 0, 1))
+	if (rot == 4):
+		verts.append(pos + Vector3(0, 0, 1))
+		verts.append(pos + Vector3(1, 1, 1))
+		verts.append(pos + Vector3(1, 0, 1))
+		verts.append(pos + Vector3(0, 1, 1))
+		
+	if (rot == 5):
+		verts.append(pos + Vector3(1, 0, 0))
+		verts.append(pos + Vector3(0, 1, 0))
+		verts.append(pos)
+		verts.append(pos + Vector3(1, 1, 0))
+	
+	if (rot == 0):
+		for i in range(0, 4): normals.append(Vector3(1, 0, 0))
+	elif (rot == 1):
+		for i in range(0, 4): normals.append(Vector3(-1, 0, 0))
+	elif (rot == 2):
+		for i in range(0, 4): normals.append(Vector3(0, 1, 0))
+	elif (rot == 3):
+		for i in range(0, 4): normals.append(Vector3(0, -1, 0))
+	elif (rot == 4):
+		for i in range(0, 4): normals.append(Vector3(0, 0, 1))
+	elif (rot == 5):
+		for i in range(0, 4): normals.append(Vector3(0, 0, -1))
+
 	uvs.append(Vector2(0, 1))
-	
-	verts.append(Vector3(1, 1, 0))
-	normals.append(Vector3(0, 0, 1))
 	uvs.append(Vector2(1, 0))
-	
-	verts.append(Vector3(1, 0, 0))
-	normals.append(Vector3(0, 0, 1))
 	uvs.append(Vector2(1, 1))
-	
-	verts.append(Vector3(0, 1, 0))
-	normals.append(Vector3(0, 0, 1))
 	uvs.append(Vector2(0, 0))
 
 	# connect vertices into triangles
@@ -47,7 +63,10 @@ func _ready():
 	var normals = PackedVector3Array()
 	var indices = PackedInt32Array()
 	
-	generate_quad(0, verts, uvs, normals, indices)
+	var index = 0
+	#for rot in range(0, 6):
+	index = generate_quad(index, Vector3(0, 0, 0), 4, verts, uvs, normals, indices)
+	index = generate_quad(index, Vector3(0, 0, 0), 5, verts, uvs, normals, indices)
 
 	# assign arrays to surface array
 	surface_array[Mesh.ARRAY_VERTEX] = verts
@@ -57,7 +76,3 @@ func _ready():
 
 	# create mesh from array
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
-
-func _process(delta: float) -> void:
-	
-	rotation.y += delta
