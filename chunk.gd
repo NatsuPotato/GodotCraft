@@ -15,12 +15,14 @@ func _ready():
 	noise.set_domain_warp_frequency(0.1)
 	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
 	
-	for x in range(0, 32):
-		for y in range(0, 32):
-			for z in range(0, 32):
+	for x in 32:
+		for y in 32:
+			for z in 32:
 				
-				if (noise.get_noise_3d(x, y, z) > 0):
+				if (noise.get_noise_3d(x, y, z) > 0.03):
 					tile_data.append(1)
+				elif (noise.get_noise_3d(x, y, z) > 0):
+					tile_data.append(2)
 				else:
 					tile_data.append(0)
 	
@@ -38,13 +40,14 @@ func remesh():
 	
 	var index = 0
 	
-	for x in range(0, 32):
-		for y in range(0, 32):
-			for z in range(0, 32):
+	for x in 32:
+		for y in 32:
+			for z in 32:
 				
-				if (tile_data[x * 1024 + y * 32 + z] != 0):
+				var tile_type = tile_data[x * 1024 + y * 32 + z]
+				if (tile_type != 0):
 					for rot in range(0, 6):
-						index = generate_quad(index, Vector3(x, y, z), rot, verts, uvs, normals, indices)
+						index = generate_quad(index, Vector3(x, y, z), rot, tile_type, verts, uvs, normals, indices)
 
 	# assign arrays to surface array
 	surface_array[Mesh.ARRAY_VERTEX] = verts
@@ -61,6 +64,7 @@ static func generate_quad(
 		start_index : int,
 		pos         : Vector3, # grid space
 		rot         : int, # [0, 5]
+		tile_type   : int, # for UV mapping to spritemap
 		verts       : PackedVector3Array,
 		uvs         : PackedVector2Array,
 		normals     : PackedVector3Array,
@@ -116,10 +120,10 @@ static func generate_quad(
 	elif (rot == 5):
 		for i in range(0, 4): normals.append(Vector3(0, 0, -1))
 
-	uvs.append(Vector2(0, 1))
-	uvs.append(Vector2(1, 0))
-	uvs.append(Vector2(1, 1))
-	uvs.append(Vector2(0, 0))
+	uvs.append(Vector2(tile_type, 1))
+	uvs.append(Vector2(tile_type + 1, 0))
+	uvs.append(Vector2(tile_type + 1, 1))
+	uvs.append(Vector2(tile_type, 0))
 
 	# connect vertices into triangles
 	indices.append(start_index)

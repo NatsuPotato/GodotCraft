@@ -1,11 +1,13 @@
 [gd_scene load_steps=8 format=3 uid="uid://dfx6sfc48bl3l"]
 
 [ext_resource type="Script" path="res://chunk.gd" id="1_k5fgt"]
-[ext_resource type="Texture2D" uid="uid://sg0dubdw1a38" path="res://cobblestone.png" id="1_uts3j"]
+[ext_resource type="Texture2D" uid="uid://c5btooyrj57at" path="res://terrain.png" id="1_u6huv"]
 [ext_resource type="Script" path="res://freecam.gd" id="3_ous5n"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
-albedo_texture = ExtResource("1_uts3j")
+albedo_texture = ExtResource("1_u6huv")
+metallic_specular = 0.0
+uv1_scale = Vector3(0.063, 0.063, 0.063)
 texture_filter = 0
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]

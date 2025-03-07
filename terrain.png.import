@@ -2,27 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://sg0dubdw1a38"
-path.s3tc="res://.godot/imported/cobblestone.png-ea61d80ece530b2ea630e5a0abdef648.s3tc.ctex"
+uid="uid://c5btooyrj57at"
+path="res://.godot/imported/terrain.png-84a626877af7de08ecf24965bda52835.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://cobblestone.png"
-dest_files=["res://.godot/imported/cobblestone.png-ea61d80ece530b2ea630e5a0abdef648.s3tc.ctex"]
+source_file="res://terrain.png"
+dest_files=["res://.godot/imported/terrain.png-84a626877af7de08ecf24965bda52835.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
