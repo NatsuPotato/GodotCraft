@@ -87,13 +87,14 @@ func _ready():
 	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
 	var noise = FastNoiseLite.new()
 	noise.set_seed(RandomNumberGenerator.new().randi())
+	noise.set_domain_warp_frequency(0.1)
 	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
 	
 	for x in range(0, 32):
 		for y in range(0, 32):
 			for z in range(0, 32):
 				
-				if (noise.get_noise_3d(x, y, z) - y * 0.01 > 0):
+				if (noise.get_noise_3d(x, y, z) > 0):
 					tile_data.append(1)
 				else:
 					tile_data.append(0)
@@ -115,7 +116,7 @@ func _ready():
 		for y in range(0, 32):
 			for z in range(0, 32):
 				
-				if (tile_data[x + y * 32 + z * 1024] != 0):
+				if (tile_data[z + y * 32 + x * 1024] != 0):
 					for rot in range(0, 6):
 						index = generate_quad(index, Vector3(x, y, z), rot, verts, uvs, normals, indices)
 
