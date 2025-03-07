@@ -3,8 +3,6 @@ extends StaticBody3D
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
 
-# TODO hidden face optimization
-
 var tile_data = PackedByteArray()
 
 func _ready():
@@ -30,6 +28,13 @@ func _ready():
 	
 	remesh()
 
+func get_tile_type(x:int, y:int, z:int) -> int:
+	
+	if (x >= 32 or y >= 32 or z >= 32 or x < 0 or y < 0 or z < 0):
+		return 0
+	
+	return tile_data[x * 1024 + y * 32 + z]
+
 func remesh():
 	
 	var surface_array = []
@@ -49,10 +54,27 @@ func remesh():
 		for y in 32:
 			for z in 32:
 				
-				var tile_type = tile_data[x * 1024 + y * 32 + z]
+				var tile_type = get_tile_type(x, y, z)
 				if (tile_type != 0):
-					for rot in range(0, 6):
-						index = generate_quad(index, Vector3(x, y, z), rot, tile_type, verts, uvs, normals, indices, collision_verts)
+					
+					# hidden face optimization
+					if get_tile_type(x + 1, y, z) == 0:
+						index = generate_quad(index, Vector3(x, y, z), 0, tile_type, verts, uvs, normals, indices, collision_verts)
+					
+					if get_tile_type(x - 1, y, z) == 0:
+						index = generate_quad(index, Vector3(x, y, z), 1, tile_type, verts, uvs, normals, indices, collision_verts)
+					
+					if get_tile_type(x, y + 1, z) == 0:
+						index = generate_quad(index, Vector3(x, y, z), 2, tile_type, verts, uvs, normals, indices, collision_verts)
+					
+					if get_tile_type(x, y - 1, z) == 0:
+						index = generate_quad(index, Vector3(x, y, z), 3, tile_type, verts, uvs, normals, indices, collision_verts)
+					
+					if get_tile_type(x, y, z + 1) == 0:
+						index = generate_quad(index, Vector3(x, y, z), 4, tile_type, verts, uvs, normals, indices, collision_verts)
+						
+					if get_tile_type(x, y, z - 1) == 0:
+						index = generate_quad(index, Vector3(x, y, z), 5, tile_type, verts, uvs, normals, indices, collision_verts)
 
 	# assign arrays to surface array
 	surface_array[Mesh.ARRAY_VERTEX] = verts
