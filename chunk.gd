@@ -3,6 +3,59 @@ extends MeshInstance3D
 # TODO dynamic texturing
 # TODO hidden face optimization
 
+var tile_data = PackedByteArray()
+
+func _ready():
+	
+	# generate tile data (temp, should be done by a chunk manager)
+	
+	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
+	var noise = FastNoiseLite.new()
+	noise.set_seed(RandomNumberGenerator.new().randi())
+	noise.set_domain_warp_frequency(0.1)
+	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
+	
+	for x in range(0, 32):
+		for y in range(0, 32):
+			for z in range(0, 32):
+				
+				if (noise.get_noise_3d(x, y, z) > 0):
+					tile_data.append(1)
+				else:
+					tile_data.append(0)
+	
+	remesh()
+
+func remesh():
+	
+	var surface_array = []
+	surface_array.resize(Mesh.ARRAY_MAX)
+
+	var verts = PackedVector3Array()
+	var uvs = PackedVector2Array()
+	var normals = PackedVector3Array()
+	var indices = PackedInt32Array()
+	
+	var index = 0
+	
+	for x in range(0, 32):
+		for y in range(0, 32):
+			for z in range(0, 32):
+				
+				if (tile_data[x * 1024 + y * 32 + z] != 0):
+					for rot in range(0, 6):
+						index = generate_quad(index, Vector3(x, y, z), rot, verts, uvs, normals, indices)
+
+	# assign arrays to surface array
+	surface_array[Mesh.ARRAY_VERTEX] = verts
+	surface_array[Mesh.ARRAY_TEX_UV] = uvs
+	surface_array[Mesh.ARRAY_NORMAL] = normals
+	surface_array[Mesh.ARRAY_INDEX] = indices
+
+	# create mesh from array
+	mesh = ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
+
 #https://docs.godotengine.org/en/stable/tutorials/3d/procedural_geometry/arraymesh.html#doc-arraymesh
 static func generate_quad(
 		start_index : int,
@@ -78,53 +131,3 @@ static func generate_quad(
 	indices.append(start_index + 1)
 	
 	return start_index + 4
-
-func _ready():
-	
-	# generate grid
-	var tile_data = PackedByteArray()
-	
-	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
-	var noise = FastNoiseLite.new()
-	noise.set_seed(RandomNumberGenerator.new().randi())
-	noise.set_domain_warp_frequency(0.1)
-	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
-	
-	for x in range(0, 32):
-		for y in range(0, 32):
-			for z in range(0, 32):
-				
-				if (noise.get_noise_3d(x, y, z) > 0):
-					tile_data.append(1)
-				else:
-					tile_data.append(0)
-	
-	
-	
-	# generate mesh
-	var surface_array = []
-	surface_array.resize(Mesh.ARRAY_MAX)
-
-	var verts = PackedVector3Array()
-	var uvs = PackedVector2Array()
-	var normals = PackedVector3Array()
-	var indices = PackedInt32Array()
-	
-	var index = 0
-	
-	for x in range(0, 32):
-		for y in range(0, 32):
-			for z in range(0, 32):
-				
-				if (tile_data[z + y * 32 + x * 1024] != 0):
-					for rot in range(0, 6):
-						index = generate_quad(index, Vector3(x, y, z), rot, verts, uvs, normals, indices)
-
-	# assign arrays to surface array
-	surface_array[Mesh.ARRAY_VERTEX] = verts
-	surface_array[Mesh.ARRAY_TEX_UV] = uvs
-	surface_array[Mesh.ARRAY_NORMAL] = normals
-	surface_array[Mesh.ARRAY_INDEX] = indices
-
-	# create mesh from array
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
