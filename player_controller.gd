@@ -35,6 +35,6 @@ func _input(event):
 		rotation.y += deg_to_rad(-event.relative.x * mouse_sensitivity)
 		var changev = -event.relative.y * mouse_sensitivity
 		
-		if abs(camera_anglev + changev) < 50:
+		if abs(camera_anglev + changev) < 90:
 			camera_anglev += changev
 			camera.rotation.x += deg_to_rad(changev)

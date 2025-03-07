@@ -1,8 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://dfx6sfc48bl3l"]
+[gd_scene load_steps=13 format=3 uid="uid://dfx6sfc48bl3l"]
 
 [ext_resource type="Script" path="res://chunk.gd" id="1_k5fgt"]
 [ext_resource type="Texture2D" uid="uid://c5btooyrj57at" path="res://terrain.png" id="1_u6huv"]
 [ext_resource type="Script" path="res://player_controller.gd" id="3_ous5n"]
+[ext_resource type="Shader" path="res://inverted.gdshader" id="4_b0yie"]
+[ext_resource type="Texture2D" uid="uid://ckc0nfk6hr75i" path="res://crosshair.png" id="5_35ecv"]
+[ext_resource type="Script" path="res://fps.gd" id="6_osfrn"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]
 
@@ -12,6 +15,8 @@ sky_material = SubResource("ProceduralSkyMaterial_ontqq")
 [sub_resource type="Environment" id="Environment_0x2lj"]
 background_mode = 2
 sky = SubResource("Sky_2updk")
+ssao_enabled = true
+ssao_intensity = 2.2
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
 albedo_texture = ExtResource("1_u6huv")
@@ -20,6 +25,9 @@ texture_filter = 0
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_lhjpb"]
 height = 1.8
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ptsw7"]
+shader = ExtResource("4_b0yie")
 
 [node name="World" type="Node3D"]
 
@@ -47,8 +55,36 @@ camera = NodePath("Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
-fov = 100.0
+fov = 90.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CylinderShape3D_lhjpb")
+
+[node name="Crosshair" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Icon" type="Sprite2D" parent="Crosshair"]
+texture_filter = 1
+material = SubResource("ShaderMaterial_ptsw7")
+scale = Vector2(2, 2)
+texture = ExtResource("5_35ecv")
+
+[node name="DebugInfo" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FPS" type="RichTextLabel" parent="DebugInfo"]
+offset_right = 167.0
+offset_bottom = 39.0
+text = "142308 fps"
+script = ExtResource("6_osfrn")
