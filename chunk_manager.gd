@@ -4,6 +4,12 @@ const CHUNK_SCENE := preload("res://chunk.tscn")
 
 func _ready() -> void:
 	
+	var thread = Thread.new()
+	
+	thread.start(generate_chunks)
+	
+func generate_chunks():
+	
 	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
 	var noise = FastNoiseLite.new()
 	noise.set_seed(RandomNumberGenerator.new().randi())
@@ -14,13 +20,13 @@ func _ready() -> void:
 		for cy in range(-8, 0):
 			for cz in 16:
 				
-				print(str(cx * 128 + (cy + 8) * 16 + cz) + "/2048")
+				print(str(cx * 128 + (cy + 8) * 16 + cz + 1) + "/2048")
 	
 				var chunk := CHUNK_SCENE.instantiate()
 				
 				chunk.position = Vector3i(cx, cy, cz) * chunk.CHUNK_SIZE
 				chunk.populate(noise)
 				
-				add_child(chunk)
+				call_deferred("add_child", chunk)
 	
 	print(Time.get_ticks_usec() / 1000000)

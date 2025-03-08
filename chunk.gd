@@ -1,6 +1,6 @@
 extends StaticBody3D
 
-const CHUNK_SIZE    : int = 8
+const CHUNK_SIZE    : int = 16
 const CHUNK_SIZE_SQ : int = CHUNK_SIZE * CHUNK_SIZE
 
 @export var MESH : MeshInstance3D
@@ -15,10 +15,12 @@ func populate(noise:FastNoiseLite):
 		for y in CHUNK_SIZE:
 			for z in CHUNK_SIZE:
 				
-				if (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0.03):
-					tile_data.append(1)
-				elif (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0):
-					tile_data.append(2)
+				if (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0):
+					
+					if (noise.get_noise_3dv(Vector3(x * 3 + 1408, y * 2.5, z * 3.2) + position) > 0):
+						tile_data.append(1)
+					else:
+						tile_data.append(2)
 				else:
 					tile_data.append(0)
 	
