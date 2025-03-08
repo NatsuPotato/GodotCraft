@@ -28,17 +28,39 @@ func _ready():
 	
 	remesh()
 
-func set_tile_type(x:int, y:int, z:int, tile_type:int):
+func get_tile_pos_from_raycast(raycast_result:Dictionary, on_surface:bool) -> Vector3i:
 	
-	tile_data[x * 1024 + y * 32 + z] = tile_type
+	var tile_pos = Vector3(raycast_result.position)
+	
+	# push in or out of block
+	if on_surface:
+		tile_pos += raycast_result.normal * 0.5
+	else:
+		tile_pos -= raycast_result.normal * 0.5
+	
+	# convert to local
+	tile_pos -= position
+	
+	return tile_pos
+
+func set_tile_type(pos:Vector3i, tile_type:int):
+	
+	if (get_tile_pos_oob(pos.x, pos.y, pos.z)):
+		return
+	
+	tile_data[pos.x * 1024 + pos.y * 32 + pos.z] = tile_type
 	remesh()
 
 func get_tile_type(x:int, y:int, z:int) -> int:
 	
-	if (x >= 32 or y >= 32 or z >= 32 or x < 0 or y < 0 or z < 0):
+	if (get_tile_pos_oob(x, y, z)):
 		return 0
 	
 	return tile_data[x * 1024 + y * 32 + z]
+
+func get_tile_pos_oob(x:int, y:int, z:int) -> bool:
+	
+	return x >= 32 or y >= 32 or z >= 32 or x < 0 or y < 0 or z < 0
 
 func get_tile_is_transparent(x:int, y:int, z:int) -> bool:
 	

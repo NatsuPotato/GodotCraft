@@ -11,17 +11,21 @@ var camera_pitch := 0.0
 
 func _process(delta: float) -> void:
 	
-	# raycasting to break/place blocks
-	var space_state := get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + 100 * -camera.get_global_transform().basis.z)
-	var result := space_state.intersect_ray(query)
-	
-	if (!result.is_empty()):
+	if (Input.is_action_just_pressed("use")):
 		
-		result.position -= result.normal * 0.5
+		var result := raycast(10)
 		
-		result.collider.set_tile_type(int(result.position.x), int(result.position.y), int(result.position.z), 0)
+		if (!result.is_empty()):
+			
+			result.collider.set_tile_type(result.collider.get_tile_pos_from_raycast(result, true), 1)
 	
+	if (Input.is_action_just_pressed("hit")):
+		
+		var result := raycast(10)
+		
+		if (!result.is_empty()):
+			
+			result.collider.set_tile_type(result.collider.get_tile_pos_from_raycast(result, false), 0)
 	
 	
 	var input_dir := Input.get_vector("strafe_left", "strafe_right", "strafe_forward", "strafe_backward")
@@ -43,6 +47,12 @@ func _process(delta: float) -> void:
 
 # Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 # Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+
+func raycast(length:int) -> Dictionary:
+	
+	var space_state := get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + length * -camera.get_global_transform().basis.z)
+	return space_state.intersect_ray(query)
 
 func _input(event):
 	
