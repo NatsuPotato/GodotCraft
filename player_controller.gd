@@ -7,7 +7,7 @@ extends CharacterBody3D
 
 var camera_pitch := 0.0
 
-func _init() -> void:
+func _ready() -> void:
 	
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
