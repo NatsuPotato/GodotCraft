@@ -3,9 +3,12 @@ extends CharacterBody3D
 @export var camera : Camera3D
 @export var mouse_sensitivity := 0.3
 @export var walk_speed := 5
+@export var fly_speed := 12
 @export var jump_speed := 5
 
 var camera_pitch := 0.0
+
+var is_flying := false
 
 func _ready() -> void:
 	
@@ -34,17 +37,32 @@ func _process(delta: float) -> void:
 	var input_dir := Input.get_vector("strafe_left", "strafe_right", "strafe_forward", "strafe_backward")
 	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
-	velocity += get_gravity() * delta
-	
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = jump_speed
-	
-	if direction:
-		velocity.x = direction.x * walk_speed
-		velocity.z = direction.z * walk_speed
+	if is_flying:
+		
+		if Input.is_action_pressed("jump"):
+			velocity.y = fly_speed
+		else:
+			velocity.y = 0
+		
+		if direction:
+			velocity.x = direction.x * fly_speed
+			velocity.z = direction.z * fly_speed
+		else:
+			velocity.x = 0
+			velocity.z = 0
+		
 	else:
-		velocity.x = 0
-		velocity.z = 0
+		velocity += get_gravity() * delta
+		
+		if Input.is_action_just_pressed("jump") and is_on_floor():
+			velocity.y = jump_speed
+		
+		if direction:
+			velocity.x = direction.x * walk_speed
+			velocity.z = direction.z * walk_speed
+		else:
+			velocity.x = 0
+			velocity.z = 0
 		
 	move_and_slide()
 
@@ -56,14 +74,18 @@ func raycast(length:int) -> Dictionary:
 
 func _input(event):
 	
-	if event.is_action_pressed("pause"):
+	if event.is_action_pressed("toggle_fly"):
+		
+		is_flying = !is_flying
+	
+	elif event.is_action_pressed("pause"):
 		
 		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
-	if event is InputEventMouseMotion:
+	elif event is InputEventMouseMotion:
 		
 		rotation.y += deg_to_rad(-event.relative.x * mouse_sensitivity)
 		

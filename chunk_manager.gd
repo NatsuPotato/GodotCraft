@@ -1,12 +1,18 @@
 extends Node3D
 
 const CHUNK_SCENE := preload("res://chunk.tscn")
+var generator_thread : Thread
 
 func _ready() -> void:
 	
-	var thread = Thread.new()
+	generator_thread = Thread.new()
 	
-	thread.start(generate_chunks)
+	generator_thread.start(generate_chunks)
+	
+func _update() -> void:
+	
+	if !generator_thread.is_alive():
+		generator_thread.wait_to_finish()
 	
 func generate_chunks():
 	
@@ -29,4 +35,4 @@ func generate_chunks():
 				
 				call_deferred("add_child", chunk)
 	
-	print(Time.get_ticks_usec() / 1000000)
+	print(int(Time.get_ticks_usec() / 100000.0) / 10.0)

@@ -8,6 +8,9 @@ const CHUNK_SIZE_SQ : int = CHUNK_SIZE * CHUNK_SIZE
 
 var tile_data = PackedByteArray()
 
+# TODO make chunks "linked lists" to each other, which chunk manager
+# can take advantage of to dynamically load/deload chunks around the player
+
 func populate(noise:FastNoiseLite):
 	
 	# generate tile data
@@ -17,7 +20,7 @@ func populate(noise:FastNoiseLite):
 				
 				if (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0):
 					
-					if (noise.get_noise_3dv(Vector3(x * 3 + 1408, y * 2.5, z * 3.2) + position) > 0):
+					if (noise.get_noise_3dv((Vector3(x, y, z) + position) * 3 + Vector3(1203, 123, -47)) > 0):
 						tile_data.append(1)
 					else:
 						tile_data.append(2)
