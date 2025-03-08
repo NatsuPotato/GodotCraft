@@ -16,8 +16,11 @@ func _process(delta: float) -> void:
 	var query := PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + 100 * -camera.get_global_transform().basis.z)
 	var result := space_state.intersect_ray(query)
 	
-	print(result)
-	#if (result.is_empty()):
+	if (!result.is_empty()):
+		
+		result.position -= result.normal * 0.5
+		
+		result.collider.set_tile_type(int(result.position.x), int(result.position.y), int(result.position.z), 0)
 	
 	
 	

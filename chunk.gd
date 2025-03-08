@@ -28,6 +28,11 @@ func _ready():
 	
 	remesh()
 
+func set_tile_type(x:int, y:int, z:int, tile_type:int):
+	
+	tile_data[x * 1024 + y * 32 + z] = tile_type
+	remesh()
+
 func get_tile_type(x:int, y:int, z:int) -> int:
 	
 	if (x >= 32 or y >= 32 or z >= 32 or x < 0 or y < 0 or z < 0):
@@ -87,10 +92,13 @@ func remesh():
 	surface_array[Mesh.ARRAY_NORMAL] = normals
 	surface_array[Mesh.ARRAY_INDEX] = indices
 
-	MESH.mesh = ArrayMesh.new()
+	if (MESH.mesh == null):
+		MESH.mesh = ArrayMesh.new()
+	MESH.mesh.clear_surfaces()
 	MESH.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_array)
 	
-	COLLIDER.shape = ConcavePolygonShape3D.new()
+	if (COLLIDER.shape == null):
+		COLLIDER.shape = ConcavePolygonShape3D.new()
 	COLLIDER.shape.set_faces(collision_verts)
 
 #https://docs.godotengine.org/en/stable/tutorials/3d/procedural_geometry/arraymesh.html#doc-arraymesh
