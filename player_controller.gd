@@ -3,16 +3,14 @@ extends CharacterBody3D
 @export var camera : Camera3D
 @export var mouse_sensitivity := 0.3
 @export var walk_speed := 5
-@export var fly_speed := 12
-@export var jump_speed := 5
+@export var fly_speed := 24
+@export var jump_speed := 7
+@export var max_fall_speed := 32
 
 var camera_pitch := 0.0
 
+var is_paused := true
 var is_flying := false
-
-func _ready() -> void:
-	
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _process(delta: float) -> void:
 	
@@ -52,7 +50,9 @@ func _process(delta: float) -> void:
 			velocity.z = 0
 		
 	else:
-		velocity += get_gravity() * delta
+		
+		if (velocity.y > -max_fall_speed):
+			velocity += get_gravity() * delta
 		
 		if Input.is_action_just_pressed("jump") and is_on_floor():
 			velocity.y = jump_speed
@@ -80,12 +80,14 @@ func _input(event):
 	
 	elif event.is_action_pressed("pause"):
 		
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		is_paused = !is_paused
+		
+		if is_paused:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
-	elif event is InputEventMouseMotion:
+	elif !is_paused and event is InputEventMouseMotion:
 		
 		rotation.y += deg_to_rad(-event.relative.x * mouse_sensitivity)
 		
