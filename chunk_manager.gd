@@ -1,38 +1,52 @@
 extends Node3D
 
 const CHUNK_SCENE := preload("res://chunk.tscn")
-var generator_thread : Thread
+
+var generator_threads := []
+var live_chunk_positions := []
+
+var noise : FastNoiseLite
 
 func _ready() -> void:
 	
-	generator_thread = Thread.new()
-	
-	generator_thread.start(generate_chunks)
-	
-func _update() -> void:
-	
-	if !generator_thread.is_alive():
-		generator_thread.wait_to_finish()
-	
-func generate_chunks():
-	
 	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
-	var noise = FastNoiseLite.new()
+	noise = FastNoiseLite.new()
 	noise.set_seed(RandomNumberGenerator.new().randi())
 	noise.set_domain_warp_frequency(0.1)
 	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
 	
-	for cx in 16:
-		for cy in range(-8, 0):
-			for cz in 16:
-				
-				print(str(cx * 128 + (cy + 8) * 16 + cz + 1) + "/2048")
+func _process(delta:float) -> void:
 	
-				var chunk := CHUNK_SCENE.instantiate()
-				
-				chunk.position = Vector3i(cx, cy, cz) * chunk.CHUNK_SIZE
-				chunk.populate(noise)
-				
-				call_deferred("add_child", chunk)
+	# wait on terminated threads
+	for i in generator_threads.size():
+		
+		if i >= generator_threads.size():
+			break
+		
+		var thread = generator_threads[i]
+		
+		if !thread.is_alive():
+			thread.wait_to_finish()
+			generator_threads.remove_at(i)
 	
-	print(int(Time.get_ticks_usec() / 100000.0) / 10.0)
+	# temp, pick a random position, if it doesn't already have a chunk, spawn a thread
+	if (generator_threads.size() < 16):
+		
+		var desired_chunk_pos := Vector3i(randi_range(0, 3), randi_range(0, 3), randi_range(0, 3))
+		
+		if live_chunk_positions.find(desired_chunk_pos) == -1:
+			
+			live_chunk_positions.append(desired_chunk_pos)
+			
+			var thread = Thread.new()
+			thread.start(generate_chunk.bind(desired_chunk_pos))
+			generator_threads.append(thread)
+	
+func generate_chunk(chunk_pos:Vector3i):
+	
+	var chunk := CHUNK_SCENE.instantiate()
+	
+	chunk.position = chunk_pos * chunk.CHUNK_SIZE
+	chunk.populate(noise)
+	
+	call_deferred("add_child", chunk)

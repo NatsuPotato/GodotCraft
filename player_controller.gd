@@ -12,6 +12,8 @@ var camera_pitch := 0.0
 var is_paused := true
 var is_flying := false
 
+# TODO make it so you can't place blocks inside yourself
+
 func _process(delta: float) -> void:
 	
 	# breaking/placing tiles

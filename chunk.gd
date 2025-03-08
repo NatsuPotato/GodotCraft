@@ -8,9 +8,6 @@ const CHUNK_SIZE_SQ : int = CHUNK_SIZE * CHUNK_SIZE
 
 var tile_data = PackedByteArray()
 
-# TODO make chunks "linked lists" to each other, which chunk manager
-# can take advantage of to dynamically load/deload chunks around the player
-
 func populate(noise:FastNoiseLite):
 	
 	# generate tile data
@@ -108,6 +105,7 @@ func remesh():
 
 	# create mesh and collision mesh from arrays
 	if (verts.size() != 0):
+		
 		var surface_array = []
 		surface_array.resize(Mesh.ARRAY_MAX)
 		
