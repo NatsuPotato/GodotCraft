@@ -7,10 +7,13 @@ extends CharacterBody3D
 
 var camera_pitch := 0.0
 
-# TODO add a simple pause menu (pause input + mouse capturing)
+func _init() -> void:
+	
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 func _process(delta: float) -> void:
 	
+	# breaking/placing tiles
 	if (Input.is_action_just_pressed("use")):
 		
 		var result := raycast(10)
@@ -27,7 +30,7 @@ func _process(delta: float) -> void:
 			
 			result.collider.set_tile_type(result.collider.get_tile_pos_from_raycast(result, false), 0)
 	
-	
+	# movement
 	var input_dir := Input.get_vector("strafe_left", "strafe_right", "strafe_forward", "strafe_backward")
 	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
@@ -45,9 +48,6 @@ func _process(delta: float) -> void:
 		
 	move_and_slide()
 
-# Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-# Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-
 func raycast(length:int) -> Dictionary:
 	
 	var space_state := get_world_3d().direct_space_state
@@ -55,6 +55,13 @@ func raycast(length:int) -> Dictionary:
 	return space_state.intersect_ray(query)
 
 func _input(event):
+	
+	if event.is_action_pressed("pause"):
+		
+		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	if event is InputEventMouseMotion:
 		

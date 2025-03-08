@@ -1,5 +1,8 @@
 extends StaticBody3D
 
+const CHUNK_SIZE    : int = 32
+const CHUNK_SIZE_SQ : int = CHUNK_SIZE * CHUNK_SIZE
+
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
 
@@ -15,9 +18,9 @@ func _ready():
 	noise.set_domain_warp_frequency(0.1)
 	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
 	
-	for x in 32:
-		for y in 32:
-			for z in 32:
+	for x in CHUNK_SIZE:
+		for y in CHUNK_SIZE:
+			for z in CHUNK_SIZE:
 				
 				if (noise.get_noise_3d(x, y, z) > 0.03):
 					tile_data.append(1)
@@ -45,26 +48,26 @@ func get_tile_pos_from_raycast(raycast_result:Dictionary, on_surface:bool) -> Ve
 
 func set_tile_type(pos:Vector3i, tile_type:int):
 	
-	if (get_tile_pos_oob(pos.x, pos.y, pos.z)):
+	if (get_tile_pos_oob(pos)):
 		return
 	
-	tile_data[pos.x * 1024 + pos.y * 32 + pos.z] = tile_type
+	tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z] = tile_type
 	remesh()
 
-func get_tile_type(x:int, y:int, z:int) -> int:
+func get_tile_type(pos:Vector3i) -> int:
 	
-	if (get_tile_pos_oob(x, y, z)):
+	if (get_tile_pos_oob(pos)):
 		return 0
 	
-	return tile_data[x * 1024 + y * 32 + z]
+	return tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z]
 
-func get_tile_pos_oob(x:int, y:int, z:int) -> bool:
+func get_tile_pos_oob(pos:Vector3i) -> bool:
 	
-	return x >= 32 or y >= 32 or z >= 32 or x < 0 or y < 0 or z < 0
+	return pos.x >= 32 or pos.y >= 32 or pos.z >= 32 or pos.x < 0 or pos.y < 0 or pos.z < 0
 
-func get_tile_is_transparent(x:int, y:int, z:int) -> bool:
+func get_tile_is_transparent(pos:Vector3i) -> bool:
 	
-	return get_tile_type(x, y, z) == 0
+	return get_tile_type(pos) == 0
 
 func remesh():
 
@@ -83,26 +86,26 @@ func remesh():
 		for y in 32:
 			for z in 32:
 				
-				var tile_type = get_tile_type(x, y, z)
+				var tile_type = get_tile_type(Vector3i(x, y, z))
 				if (tile_type != 0):
 					
 					# hidden face optimization
-					if get_tile_is_transparent(x + 1, y, z):
+					if get_tile_is_transparent(Vector3i(x + 1, y, z)):
 						index = generate_quad(index, Vector3(x, y, z), 0, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_is_transparent(x - 1, y, z):
+					if get_tile_is_transparent(Vector3i(x - 1, y, z)):
 						index = generate_quad(index, Vector3(x, y, z), 1, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_is_transparent(x, y + 1, z):
+					if get_tile_is_transparent(Vector3i(x, y + 1, z)):
 						index = generate_quad(index, Vector3(x, y, z), 2, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_is_transparent(x, y - 1, z):
+					if get_tile_is_transparent(Vector3i(x, y - 1, z)):
 						index = generate_quad(index, Vector3(x, y, z), 3, tile_type, verts, uvs, normals, indices, collision_verts)
 					
-					if get_tile_is_transparent(x, y, z + 1):
+					if get_tile_is_transparent(Vector3i(x, y, z + 1)):
 						index = generate_quad(index, Vector3(x, y, z), 4, tile_type, verts, uvs, normals, indices, collision_verts)
 						
-					if get_tile_is_transparent(x, y, z - 1):
+					if get_tile_is_transparent(Vector3i(x, y, z - 1)):
 						index = generate_quad(index, Vector3(x, y, z), 5, tile_type, verts, uvs, normals, indices, collision_verts)
 
 	# create mesh and collision mesh from arrays
