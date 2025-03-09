@@ -9,7 +9,6 @@ extends CharacterBody3D
 
 var camera_pitch := 0.0
 
-var is_paused := true
 var is_flying := false
 
 # TODO make it so you can't place blocks inside yourself
@@ -80,16 +79,7 @@ func _input(event):
 		
 		is_flying = !is_flying
 	
-	elif event.is_action_pressed("pause"):
-		
-		is_paused = !is_paused
-		
-		if is_paused:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	
-	elif !is_paused and event is InputEventMouseMotion:
+	elif !UiState.is_paused and event is InputEventMouseMotion:
 		
 		rotation.y += deg_to_rad(-event.relative.x * mouse_sensitivity)
 		

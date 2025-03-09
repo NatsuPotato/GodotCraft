@@ -20,9 +20,9 @@ var noise : FastNoiseLite
 
 func _ready() -> void:
 	
-	for cx in 16:
-		for cy in 16:
-			for cz in 16:
+	for cx in 8:
+		for cy in 8:
+			for cz in 8:
 				requested_chunk_positions.append(Vector3(cx, cy, cz))
 	
 	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
@@ -34,20 +34,18 @@ func _ready() -> void:
 func _process(_delta:float) -> void:
 	
 	# wait on terminated threads
-	for i in generator_threads.size():
-		
-		if i >= generator_threads.size():
-			break
+	var i := 0
+	while i < generator_threads.size():
 		
 		var thread = generator_threads[i]
 		
 		if !thread.is_alive():
 			thread.wait_to_finish()
 			generator_threads.remove_at(i)
+			
+		i += 1
 	
 	if (requested_chunk_positions.size() > 0 and generator_threads.size() < 16):
-		
-		print(get_child_count() + 1)
 		
 		var thread = Thread.new()
 		thread.start(generate_chunk.bind(requested_chunk_positions.pop_back()))
