@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://ckc0nfk6hr75i" path="res://crosshair.png" id="5_35ecv"]
 [ext_resource type="Script" path="res://chunk_manager.gd" id="5_wkvw0"]
 [ext_resource type="Script" path="res://pause_menu.gd" id="6_jgroj"]
-[ext_resource type="Script" path="res://fps.gd" id="6_osfrn"]
+[ext_resource type="Script" path="res://debug_readout.gd" id="6_osfrn"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]
 
@@ -35,7 +35,7 @@ shadow_enabled = true
 environment = SubResource("Environment_0x2lj")
 
 [node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 36, 16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 96, 8)
 script = ExtResource("3_ous5n")
 camera = NodePath("Camera3D")
 
@@ -46,6 +46,12 @@ fov = 90.0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CylinderShape3D_lhjpb")
+
+[node name="ChunkManager" type="Node3D" parent="."]
+script = ExtResource("5_wkvw0")
+WORLD_X = 12
+WORLD_Y = 6
+WORLD_Z = 12
 
 [node name="Crosshair" type="Control" parent="."]
 layout_mode = 3
@@ -63,25 +69,16 @@ material = SubResource("ShaderMaterial_ptsw7")
 scale = Vector2(2, 2)
 texture = ExtResource("5_35ecv")
 
-[node name="DebugInfo" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="FPS" type="RichTextLabel" parent="DebugInfo"]
-layout_mode = 0
+[node name="DebugReadout" type="RichTextLabel" parent="." node_paths=PackedStringArray("PLAYER")]
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 210.0
+offset_right = 340.0
 offset_bottom = 40.0
 scale = Vector2(2, 2)
 text = "1234 fps"
 autowrap_mode = 0
 script = ExtResource("6_osfrn")
-
-[node name="ChunkManager" type="Node3D" parent="."]
-script = ExtResource("5_wkvw0")
+PLAYER = NodePath("../Player")
 
 [node name="PauseMenu" type="Control" parent="."]
 layout_mode = 3

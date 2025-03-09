@@ -13,6 +13,10 @@ extends Node3D
 
 const CHUNK_SCENE := preload("res://chunk.tscn")
 
+@export var WORLD_X : int = 8
+@export var WORLD_Y : int = 8
+@export var WORLD_Z : int = 8
+
 var generator_threads := []
 var requested_chunk_positions := []
 
@@ -20,16 +24,22 @@ var noise : FastNoiseLite
 
 func _ready() -> void:
 	
-	for cx in 8:
-		for cy in 8:
-			for cz in 8:
-				requested_chunk_positions.append(Vector3(cx, cy, cz))
-	
 	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
 	noise = FastNoiseLite.new()
 	noise.set_seed(RandomNumberGenerator.new().randi())
 	noise.set_domain_warp_frequency(0.1)
 	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
+	
+	# incite the generation of chunks
+	for cx in WORLD_X:
+		for cy in WORLD_Y:
+			for cz in WORLD_Z:
+				requested_chunk_positions.append(Vector3i(cx, cy, cz))
+	
+	# pregenerate the chunk the player will spawn in
+	for cy in WORLD_Y:
+		requested_chunk_positions.remove_at(requested_chunk_positions.find(Vector3i(0, cy, 0)))
+		generate_chunk(Vector3i(0, cy, 0))
 
 func _process(_delta:float) -> void:
 	
@@ -48,7 +58,7 @@ func _process(_delta:float) -> void:
 	if (requested_chunk_positions.size() > 0 and generator_threads.size() < 16):
 		
 		var thread = Thread.new()
-		thread.start(generate_chunk.bind(requested_chunk_positions.pop_back()))
+		thread.start(generate_chunk.bind(requested_chunk_positions.pop_front()))
 		generator_threads.append(thread)
 
 func generate_chunk(chunk_pos:Vector3i):
