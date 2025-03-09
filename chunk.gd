@@ -1,8 +1,5 @@
 extends StaticBody3D
 
-const CHUNK_SIZE    : int = 16
-const CHUNK_SIZE_SQ : int = CHUNK_SIZE * CHUNK_SIZE
-
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
 
@@ -11,9 +8,9 @@ var tile_data = PackedByteArray()
 func populate(noise:FastNoiseLite):
 	
 	# generate tile data
-	for x in CHUNK_SIZE:
-		for y in CHUNK_SIZE:
-			for z in CHUNK_SIZE:
+	for x in Constants.CHUNK_SIZE:
+		for y in Constants.CHUNK_SIZE:
+			for z in Constants.CHUNK_SIZE:
 				
 				if (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0):
 					
@@ -46,7 +43,7 @@ func set_tile_type(pos:Vector3i, tile_type:int):
 	if (get_tile_pos_oob(pos)):
 		return
 	
-	tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z] = tile_type
+	tile_data[pos.x * Constants.CHUNK_SIZE_SQ + pos.y * Constants.CHUNK_SIZE + pos.z] = tile_type
 	remesh()
 
 func get_tile_type(pos:Vector3i) -> int:
@@ -54,11 +51,11 @@ func get_tile_type(pos:Vector3i) -> int:
 	if (get_tile_pos_oob(pos)):
 		return 0
 	
-	return tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z]
+	return tile_data[pos.x * Constants.CHUNK_SIZE_SQ + pos.y * Constants.CHUNK_SIZE + pos.z]
 
 func get_tile_pos_oob(pos:Vector3i) -> bool:
 	
-	return pos.x >= CHUNK_SIZE or pos.y >= CHUNK_SIZE or pos.z >= CHUNK_SIZE or pos.x < 0 or pos.y < 0 or pos.z < 0
+	return pos.x >= Constants.CHUNK_SIZE or pos.y >= Constants.CHUNK_SIZE or pos.z >= Constants.CHUNK_SIZE or pos.x < 0 or pos.y < 0 or pos.z < 0
 
 func get_tile_is_transparent(pos:Vector3i) -> bool:
 	
@@ -77,9 +74,9 @@ func remesh():
 	
 	var index = 0
 	
-	for x in CHUNK_SIZE:
-		for y in CHUNK_SIZE:
-			for z in CHUNK_SIZE:
+	for x in Constants.CHUNK_SIZE:
+		for y in Constants.CHUNK_SIZE:
+			for z in Constants.CHUNK_SIZE:
 				
 				var tile_type = get_tile_type(Vector3i(x, y, z))
 				if (tile_type != 0):

@@ -1,4 +1,4 @@
-extends Node3D
+extends StaticBody3D
 
 # For many decades all GPU's have been able to handle over 2 million polygons
 # which translates to over 512x512 view distance (once you do the basic things
@@ -23,6 +23,14 @@ var requested_chunk_positions := []
 var noise : FastNoiseLite
 
 func _ready() -> void:
+	
+	# generate world boundaries
+	generate_world_boundary(Plane(1, 0, 0, 0))
+	generate_world_boundary(Plane(0, 1, 0, 0))
+	generate_world_boundary(Plane(0, 0, 1, 0))
+	
+	generate_world_boundary(Plane(-1, 0, 0, -WORLD_X * Constants.CHUNK_SIZE))
+	generate_world_boundary(Plane(0, 0, -1, -WORLD_Z * Constants.CHUNK_SIZE))
 	
 	#https://docs.godotengine.org/en/stable/classes/class_fastnoiselite.html#enum-fastnoiselite-noisetype
 	noise = FastNoiseLite.new()
@@ -65,7 +73,14 @@ func generate_chunk(chunk_pos:Vector3i):
 	
 	var chunk := CHUNK_SCENE.instantiate()
 	
-	chunk.position = chunk_pos * chunk.CHUNK_SIZE
+	chunk.position = chunk_pos * Constants.CHUNK_SIZE
 	chunk.populate(noise)
 	
 	call_deferred("add_child", chunk)
+
+func generate_world_boundary(plane:Plane):
+	
+	var collider = CollisionShape3D.new()
+	collider.shape = WorldBoundaryShape3D.new()
+	collider.shape.plane = plane
+	add_child(collider)

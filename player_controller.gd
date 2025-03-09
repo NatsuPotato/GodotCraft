@@ -11,16 +11,17 @@ var camera_pitch := 0.0
 
 var is_flying := false
 
-# TODO make it so you can't place blocks inside yourself
-
 func _process(delta: float) -> void:
 	
 	# breaking/placing tiles
+	# TODO kinda jank, also doesn't account for placing on a block in one chunk
+	# to a tile in another chunk
+	# TODO make it so you can't place blocks inside yourself
 	if (Input.is_action_just_pressed("use")):
 		
 		var result := raycast(10)
 		
-		if (!result.is_empty()):
+		if (!result.is_empty() && result.collider.has_method("get_tile_pos_from_raycast")):
 			
 			result.collider.set_tile_type(result.collider.get_tile_pos_from_raycast(result, true), 1)
 	
@@ -28,7 +29,7 @@ func _process(delta: float) -> void:
 		
 		var result := raycast(10)
 		
-		if (!result.is_empty()):
+		if (!result.is_empty() && result.collider.has_method("get_tile_pos_from_raycast")):
 			
 			result.collider.set_tile_type(result.collider.get_tile_pos_from_raycast(result, false), 0)
 	
