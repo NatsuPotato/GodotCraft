@@ -1,16 +1,44 @@
 extends StaticBody3D
 
+# For many decades all GPU's have been able to handle over 2 million polygons
+# which translates to over 512x512 view distance (once you do the basic things
+# like bury algorithm and view frustum culling) it would be INCREDIBLE to play
+# a minecraft with infinite view distance but at this point i suggest focusing
+# on game-play mechanics, difficult and cunning enemies, interesting and
+# inventive objectives, robust and useful interaction mechanics, these are all
+# places where Minecraft falls flat on it's face and they are all places where
+# you can swoop in and succeed as a game developer!
+
+# Basically, infinite worlds are boring actually
+
+#clean up my code so that chunks are MESH ONLY - actual chunk data is all stored together
+#add a mechanic where you can dig around and eat blocks inside the chunk, making you bigger
+#put a little icon of yourself in the top right to see how fat you are
+#when you consume the entire island, you win
+#it's sorta a puzzle game since the bigger you get, the less high you can jump
+#so you gotta find your way to the top and work your way down
+#BUT there's also a time limit, so it's kinda a fast-paced puzzle to get as fast as possible before level end
+#*fat as possible
+
+const CHUNK_SIZE    : int = 16
+const CHUNK_SIZE_SQ : int = CHUNK_SIZE * CHUNK_SIZE
+
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
 
 var tile_data = PackedByteArray()
 
-func populate(noise:FastNoiseLite):
+func _ready():
+	
+	var noise := FastNoiseLite.new()
+	noise.set_seed(RandomNumberGenerator.new().randi())
+	noise.set_domain_warp_frequency(0.1)
+	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
 	
 	# generate tile data
-	for x in Constants.CHUNK_SIZE:
-		for y in Constants.CHUNK_SIZE:
-			for z in Constants.CHUNK_SIZE:
+	for x in CHUNK_SIZE:
+		for y in CHUNK_SIZE:
+			for z in CHUNK_SIZE:
 				
 				if (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0):
 					
@@ -43,7 +71,7 @@ func set_tile_type(pos:Vector3i, tile_type:int):
 	if (get_tile_pos_oob(pos)):
 		return
 	
-	tile_data[pos.x * Constants.CHUNK_SIZE_SQ + pos.y * Constants.CHUNK_SIZE + pos.z] = tile_type
+	tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z] = tile_type
 	remesh()
 
 func get_tile_type(pos:Vector3i) -> int:
@@ -51,11 +79,11 @@ func get_tile_type(pos:Vector3i) -> int:
 	if (get_tile_pos_oob(pos)):
 		return 0
 	
-	return tile_data[pos.x * Constants.CHUNK_SIZE_SQ + pos.y * Constants.CHUNK_SIZE + pos.z]
+	return tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z]
 
 func get_tile_pos_oob(pos:Vector3i) -> bool:
 	
-	return pos.x >= Constants.CHUNK_SIZE or pos.y >= Constants.CHUNK_SIZE or pos.z >= Constants.CHUNK_SIZE or pos.x < 0 or pos.y < 0 or pos.z < 0
+	return pos.x >= CHUNK_SIZE or pos.y >= CHUNK_SIZE or pos.z >= CHUNK_SIZE or pos.x < 0 or pos.y < 0 or pos.z < 0
 
 func get_tile_is_transparent(pos:Vector3i) -> bool:
 	
@@ -74,9 +102,9 @@ func remesh():
 	
 	var index = 0
 	
-	for x in Constants.CHUNK_SIZE:
-		for y in Constants.CHUNK_SIZE:
-			for z in Constants.CHUNK_SIZE:
+	for x in CHUNK_SIZE:
+		for y in CHUNK_SIZE:
+			for z in CHUNK_SIZE:
 				
 				var tile_type = get_tile_type(Vector3i(x, y, z))
 				if (tile_type != 0):

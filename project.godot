@@ -18,7 +18,6 @@ config/icon="res://icon.svg"
 [autoload]
 
 UiState="*res://ui_state.gd"
-Constants="*res://constants.gd"
 
 [input]
 

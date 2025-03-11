@@ -1,9 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://dfx6sfc48bl3l"]
+[gd_scene load_steps=12 format=3 uid="uid://tfrscubhl8rd"]
 
 [ext_resource type="Script" path="res://player_controller.gd" id="3_ous5n"]
 [ext_resource type="Shader" path="res://inverted.gdshader" id="4_b0yie"]
 [ext_resource type="Texture2D" uid="uid://ckc0nfk6hr75i" path="res://crosshair.png" id="5_35ecv"]
-[ext_resource type="Script" path="res://chunk_manager.gd" id="5_wkvw0"]
+[ext_resource type="PackedScene" uid="uid://dmw76skmufda8" path="res://tile_grid.tscn" id="5_rroi4"]
 [ext_resource type="Script" path="res://pause_menu.gd" id="6_jgroj"]
 [ext_resource type="Script" path="res://debug_readout.gd" id="6_osfrn"]
 
@@ -35,7 +35,7 @@ shadow_enabled = true
 environment = SubResource("Environment_0x2lj")
 
 [node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 96, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -5)
 script = ExtResource("3_ous5n")
 camera = NodePath("Camera3D")
 
@@ -46,12 +46,6 @@ fov = 90.0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CylinderShape3D_lhjpb")
-
-[node name="ChunkManager" type="StaticBody3D" parent="."]
-script = ExtResource("5_wkvw0")
-WORLD_X = 12
-WORLD_Y = 6
-WORLD_Z = 12
 
 [node name="Crosshair" type="Control" parent="."]
 layout_mode = 3
@@ -79,6 +73,8 @@ text = "1234 fps"
 autowrap_mode = 0
 script = ExtResource("6_osfrn")
 PLAYER = NodePath("../Player")
+
+[node name="Chunk" parent="." instance=ExtResource("5_rroi4")]
 
 [node name="PauseMenu" type="Control" parent="."]
 layout_mode = 3
