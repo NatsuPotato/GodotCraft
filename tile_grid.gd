@@ -11,7 +11,7 @@ extends StaticBody3D
 
 # Basically, infinite worlds are boring actually
 
-#add a mechanic where you can dig around and eat blocks inside the chunk, making you bigger
+#add a mechanic where you can dig around and eat tiles inside the chunk, making you bigger
 #put a little icon of yourself in the top right to see how fat you are
 #when you consume the entire island, you win
 #it's sorta a puzzle game since the bigger you get, the less high you can jump
@@ -25,12 +25,12 @@ const GRID_SIZE_SQ : int = GRID_SIZE * GRID_SIZE
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
 
-var tile_type_data := PackedByteArray()
-var tile_mesh_data := []
+var all_tile_types  := PackedByteArray()
+var all_tile_meshes := []
 
 func _ready():
 	
-	tile_mesh_data.resize(GRID_SIZE * GRID_SIZE * GRID_SIZE)
+	all_tile_meshes.resize(GRID_SIZE * GRID_SIZE * GRID_SIZE)
 	
 	var noise := FastNoiseLite.new()
 	noise.set_seed(RandomNumberGenerator.new().randi())
@@ -45,11 +45,11 @@ func _ready():
 				if (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0):
 					
 					if (noise.get_noise_3dv((Vector3(x, y, z) + position) * 3 + Vector3(1203, 123, -47)) > 0):
-						tile_type_data.append(1)
+						all_tile_types.append(1)
 					else:
-						tile_type_data.append(2)
+						all_tile_types.append(2)
 				else:
-					tile_type_data.append(0)
+					all_tile_types.append(0)
 	
 	# initialize mesh data
 	for x in GRID_SIZE:
@@ -68,7 +68,7 @@ func get_tile_pos_from_raycast(raycast_result:Dictionary, on_surface:bool) -> Ve
 	
 	var tile_pos = Vector3(raycast_result.position)
 	
-	# push in or out of block
+	# push in or out of tile
 	if on_surface:
 		tile_pos += raycast_result.normal * 0.5
 	else:
@@ -84,7 +84,7 @@ func set_tile_type(pos:Vector3i, tile_type:int):
 	if (get_tile_pos_oob(pos)):
 		return
 	
-	tile_type_data[get_index_from_pos(pos)] = tile_type
+	all_tile_types[get_index_from_pos(pos)] = tile_type
 	
 	remesh(pos)
 	remesh_safe(pos + Vector3i( 1,  0,  0))
@@ -101,7 +101,7 @@ func get_tile_type(pos:Vector3i) -> int:
 	if (get_tile_pos_oob(pos)):
 		return 0
 	
-	return tile_type_data[get_index_from_pos(pos)]
+	return all_tile_types[get_index_from_pos(pos)]
 
 func get_tile_pos_oob(pos:Vector3i) -> bool:
 	
@@ -111,19 +111,16 @@ func get_tile_is_transparent(pos:Vector3i) -> bool:
 	
 	return get_tile_type(pos) == 0
 
-# remeshes a single block's entry in tile_mesh_data
-# typically you're gonna wanna remesh every block around a change
+# remeshes a single tile's entry in tile_mesh_data
+# typically you're gonna wanna remesh every tile around a change
 func remesh_safe(pos:Vector3i):
 	
 	if (!get_tile_pos_oob(pos)):
 		remesh(pos)
 
-# TODO still stutters because has to go over every block, even though is no
-# longer calculating them. if this is a problem, we'll have to make multiple
-# meshes (mesh-chunks)
 func remesh(pos:Vector3i):
 	
-	var data := [
+	var mesh := [
 		PackedVector3Array(), # verts
 		PackedVector2Array(), # uvs
 		PackedVector3Array(), # normals
@@ -138,26 +135,29 @@ func remesh(pos:Vector3i):
 		
 		# hidden face optimization
 		if get_tile_is_transparent(pos + Vector3i(1, 0, 0)):
-			index = generate_quad(index, pos, 0, tile_type, data[0], data[1], data[2], data[3], data[4])
+			index = generate_quad(index, pos, 0, tile_type, mesh)
 		
 		if get_tile_is_transparent(pos + Vector3i(-1, 0, 0)):
-			index = generate_quad(index, pos, 1, tile_type, data[0], data[1], data[2], data[3], data[4])
+			index = generate_quad(index, pos, 1, tile_type, mesh)
 		
 		if get_tile_is_transparent(pos + Vector3i(0, 1, 0)):
-			index = generate_quad(index, pos, 2, tile_type, data[0], data[1], data[2], data[3], data[4])
+			index = generate_quad(index, pos, 2, tile_type, mesh)
 		
 		if get_tile_is_transparent(pos + Vector3i(0, -1, 0)):
-			index = generate_quad(index, pos, 3, tile_type, data[0], data[1], data[2], data[3], data[4])
+			index = generate_quad(index, pos, 3, tile_type, mesh)
 		
 		if get_tile_is_transparent(pos + Vector3i(0, 0, 1)):
-			index = generate_quad(index, pos, 4, tile_type, data[0], data[1], data[2], data[3], data[4])
+			index = generate_quad(index, pos, 4, tile_type, mesh)
 		
 		if get_tile_is_transparent(pos + Vector3i(0, 0, -1)):
-			index = generate_quad(index, pos, 5, tile_type, data[0], data[1], data[2], data[3], data[4])
+			index = generate_quad(index, pos, 5, tile_type, mesh)
 
-	tile_mesh_data[get_index_from_pos(pos)] = data
+	all_tile_meshes[get_index_from_pos(pos)] = mesh
 
 # pushes tile_mesh_data to the world
+# TODO still stutters because has to go over every tile, even though is no
+# longer calculating them. if this is a problem, we'll have to make multiple
+# meshes (mesh-chunks)
 func push_mesh():
 
 	# generate arrays representing the mesh
@@ -170,18 +170,18 @@ func push_mesh():
 	
 	var index = 0
 	
-	for data in tile_mesh_data:
-		verts.append_array(data[0])
-		uvs.append_array(data[1])
-		normals.append_array(data[2])
-		collision_verts.append_array(data[4])
+	for mesh in all_tile_meshes:
+		verts.append_array(mesh[0])
+		uvs.append_array(mesh[1])
+		normals.append_array(mesh[2])
+		collision_verts.append_array(mesh[4])
 		
-		# index data within tile_mesh_data is local to that one block
-		# we need to make it global to every block
-		for i in data[3]:
+		# index data within the mesh is local to that one tile
+		# we need to make it global to every tile
+		for i in mesh[3]:
 			indices.append(i + index)
 		
-		index += data[0].size()
+		index += mesh[0].size()
 
 	# create mesh and collision mesh from arrays
 	if (verts.size() != 0):
@@ -209,12 +209,14 @@ static func generate_quad(
 		pos             : Vector3, # grid space
 		rot             : int, # [0, 5]
 		tile_type       : int, # for UV mapping to spritemap
-		verts           : PackedVector3Array,
-		uvs             : PackedVector2Array,
-		normals         : PackedVector3Array,
-		indices         : PackedInt32Array,
-		collision_verts : PackedVector3Array
+		mesh
 	) -> int:
+	
+	var verts           = mesh[0]
+	var uvs             = mesh[1]
+	var normals         = mesh[2]
+	var indices         = mesh[3]
+	var collision_verts = mesh[4]
 	
 	var v0 : Vector3
 	var v1 : Vector3
