@@ -9,5 +9,5 @@ shader = ExtResource("1_jmr5a")
 shader_parameter/slide_speed = 0.001
 shader_parameter/wobble_speed = 2.0
 shader_parameter/wobble_intensity = 0.001
-shader_parameter/texture_scale = 50.0
+shader_parameter/texture_scale = 10.0
 shader_parameter/water = ExtResource("2_vd863")
