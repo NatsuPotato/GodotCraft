@@ -11,10 +11,6 @@ extends StaticBody3D
 
 # Basically, infinite worlds are boring actually
 
-# TODO add water!
-# I think I might make a simple water shader to put around my world so that
-# instead of floating in an infinite world it's a weird monolithic island in a vast ocean
-
 #add a mechanic where you can dig around and eat tiles inside the chunk, making you bigger
 #put a little icon of yourself in the top right to see how fat you are
 #when you consume the entire island, you win
@@ -175,6 +171,10 @@ func push_mesh():
 	var index = 0
 	
 	for mesh in all_tile_meshes:
+		
+		if (mesh[0].size() == 0):
+			continue
+		
 		verts.append_array(mesh[0])
 		uvs.append_array(mesh[1])
 		normals.append_array(mesh[2])

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://tile_grid.gd" id="1_6ky2d"]
 [ext_resource type="Texture2D" uid="uid://c5btooyrj57at" path="res://terrain.png" id="2_ax1sj"]
-[ext_resource type="Shader" path="res://submerged.gdshader" id="3_j5qgq"]
+[ext_resource type="Shader" path="res://water/submerged.gdshader" id="3_j5qgq"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_fddgo"]
 render_priority = 1

@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dmw76skmufda8" path="res://tile_grid.tscn" id="5_rroi4"]
 [ext_resource type="Script" path="res://pause_menu.gd" id="6_jgroj"]
 [ext_resource type="Script" path="res://debug_readout.gd" id="6_osfrn"]
-[ext_resource type="PackedScene" uid="uid://clekpgu2kvhph" path="res://water.obj" id="7_u7bnw"]
+[ext_resource type="PackedScene" uid="uid://clekpgu2kvhph" path="res://water/water.obj" id="7_u7bnw"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]
 sky_top_color = Color(3.65794e-06, 0.656993, 0.868216, 1)
@@ -117,4 +117,4 @@ grow_vertical = 2
 text = "Paused"
 
 [node name="Water" parent="." instance=ExtResource("7_u7bnw")]
-transform = Transform3D(100, 0, 0, 0, 0.5, 0, 0, 0, 100, 0, 5.5, 0)
+transform = Transform3D(100, 0, 0, 0, 0.5, 0, 0, 0, 100, 0, 5.25, 0)

@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://clekpgu2kvhph"
-path="res://.godot/imported/water.obj-20cc96096c0ccae6ff91d0816b3863c8.scn"
+path="res://.godot/imported/water.obj-48981328b4d71ff5154143400230fa26.scn"
 
 [deps]
 
-source_file="res://water.obj"
-dest_files=["res://.godot/imported/water.obj-20cc96096c0ccae6ff91d0816b3863c8.scn"]
+source_file="res://water/water.obj"
+dest_files=["res://.godot/imported/water.obj-48981328b4d71ff5154143400230fa26.scn"]
 
 [params]
 
@@ -35,7 +35,7 @@ _subresources={
 "materials": {
 "CircleMaterial": {
 "use_external/enabled": true,
-"use_external/path": "res://water.tres"
+"use_external/path": "res://water/water.tres"
 }
 }
 }

@@ -8,10 +8,10 @@ uniform float wobble_intensity;
 uniform float texture_scale;
 uniform sampler2D water : repeat_enable;
 
-//void vertex() {
-//
-	//VERTEX.y += sin(TIME * wobble_speed) * 0.5 + 0.5;
-//}
+void vertex() {
+
+	VERTEX.y += sin(TIME * wobble_speed) * 0.5 + 0.5;
+}
 
 void fragment() {
 
