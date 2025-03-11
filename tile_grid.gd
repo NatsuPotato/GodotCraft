@@ -24,7 +24,6 @@ extends StaticBody3D
 #*fat as possible
 
 @export var GRID_SIZE : int = 32
-var GRID_SIZE_SQ : int = GRID_SIZE * GRID_SIZE
 
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
@@ -66,7 +65,7 @@ func _ready():
 
 func get_index_from_pos(pos:Vector3i):
 	
-	return pos.x * GRID_SIZE_SQ + pos.y * GRID_SIZE + pos.z
+	return pos.x * GRID_SIZE * GRID_SIZE + pos.y * GRID_SIZE + pos.z
 
 func get_tile_pos_from_raycast(raycast_result:Dictionary, on_surface:bool) -> Vector3i:
 	

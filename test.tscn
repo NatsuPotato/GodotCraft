@@ -9,6 +9,10 @@
 [ext_resource type="PackedScene" uid="uid://clekpgu2kvhph" path="res://water.obj" id="7_u7bnw"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]
+sky_top_color = Color(3.65794e-06, 0.656993, 0.868216, 1)
+sky_horizon_color = Color(0.420647, 0.753791, 0.859074, 1)
+ground_bottom_color = Color(0, 0.337231, 0.546413, 1)
+ground_horizon_color = Color(0.419608, 0.752941, 0.858824, 1)
 
 [sub_resource type="Sky" id="Sky_2updk"]
 sky_material = SubResource("ProceduralSkyMaterial_ontqq")
@@ -76,7 +80,8 @@ script = ExtResource("6_osfrn")
 PLAYER = NodePath("../Player")
 
 [node name="TileGrid" parent="." instance=ExtResource("5_rroi4")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -12)
+GRID_SIZE = 24
 
 [node name="PauseMenu" type="Control" parent="."]
 layout_mode = 3
@@ -112,4 +117,4 @@ grow_vertical = 2
 text = "Paused"
 
 [node name="Water" parent="." instance=ExtResource("7_u7bnw")]
-transform = Transform3D(100, 0, 0, 0, 0.5, 0, 0, 0, 100, 0, 0, 0)
+transform = Transform3D(100, 0, 0, 0, 0.5, 0, 0, 0, 100, 0, 5.5, 0)

@@ -1,9 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://dmw76skmufda8"]
+[gd_scene load_steps=6 format=3 uid="uid://dmw76skmufda8"]
 
 [ext_resource type="Script" path="res://tile_grid.gd" id="1_6ky2d"]
 [ext_resource type="Texture2D" uid="uid://c5btooyrj57at" path="res://terrain.png" id="2_ax1sj"]
+[ext_resource type="Shader" path="res://submerged.gdshader" id="3_j5qgq"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fddgo"]
+render_priority = 1
+shader = ExtResource("3_j5qgq")
+shader_parameter/water_height = 5.5
+shader_parameter/fade_distance = 5.0
+shader_parameter/fade_color = Color(0, 0.337255, 0.545098, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yhiwt"]
+next_pass = SubResource("ShaderMaterial_fddgo")
 albedo_texture = ExtResource("2_ax1sj")
 metallic_specular = 0.0
 texture_filter = 0
