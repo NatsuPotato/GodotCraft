@@ -11,7 +11,6 @@ extends StaticBody3D
 
 # Basically, infinite worlds are boring actually
 
-#clean up my code so that chunks are MESH ONLY - actual chunk data is all stored together
 #add a mechanic where you can dig around and eat blocks inside the chunk, making you bigger
 #put a little icon of yourself in the top right to see how fat you are
 #when you consume the entire island, you win
@@ -20,13 +19,14 @@ extends StaticBody3D
 #BUT there's also a time limit, so it's kinda a fast-paced puzzle to get as fast as possible before level end
 #*fat as possible
 
-const CHUNK_SIZE    : int = 16
-const CHUNK_SIZE_SQ : int = CHUNK_SIZE * CHUNK_SIZE
+const GRID_SIZE : int = 64
+const GRID_SIZE_SQ : int = 64
 
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
 
-var tile_data = PackedByteArray()
+var tile_type_data = PackedByteArray()
+var tile_mesh_data = []
 
 func _ready():
 	
@@ -36,18 +36,18 @@ func _ready():
 	noise.set_noise_type(FastNoiseLite.TYPE_PERLIN)
 	
 	# generate tile data
-	for x in CHUNK_SIZE:
-		for y in CHUNK_SIZE:
-			for z in CHUNK_SIZE:
+	for x in GRID_SIZE:
+		for y in GRID_SIZE:
+			for z in GRID_SIZE:
 				
 				if (noise.get_noise_3dv(Vector3(x, y, z) + position) > 0):
 					
 					if (noise.get_noise_3dv((Vector3(x, y, z) + position) * 3 + Vector3(1203, 123, -47)) > 0):
-						tile_data.append(1)
+						tile_type_data.append(1)
 					else:
-						tile_data.append(2)
+						tile_type_data.append(2)
 				else:
-					tile_data.append(0)
+					tile_type_data.append(0)
 	
 	remesh()
 
@@ -71,7 +71,7 @@ func set_tile_type(pos:Vector3i, tile_type:int):
 	if (get_tile_pos_oob(pos)):
 		return
 	
-	tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z] = tile_type
+	tile_type_data[pos.x * GRID_SIZE_SQ + pos.y * GRID_SIZE + pos.z] = tile_type
 	remesh()
 
 func get_tile_type(pos:Vector3i) -> int:
@@ -79,11 +79,11 @@ func get_tile_type(pos:Vector3i) -> int:
 	if (get_tile_pos_oob(pos)):
 		return 0
 	
-	return tile_data[pos.x * CHUNK_SIZE_SQ + pos.y * CHUNK_SIZE + pos.z]
+	return tile_type_data[pos.x * GRID_SIZE_SQ + pos.y * GRID_SIZE + pos.z]
 
 func get_tile_pos_oob(pos:Vector3i) -> bool:
 	
-	return pos.x >= CHUNK_SIZE or pos.y >= CHUNK_SIZE or pos.z >= CHUNK_SIZE or pos.x < 0 or pos.y < 0 or pos.z < 0
+	return pos.x >= GRID_SIZE or pos.y >= GRID_SIZE or pos.z >= GRID_SIZE or pos.x < 0 or pos.y < 0 or pos.z < 0
 
 func get_tile_is_transparent(pos:Vector3i) -> bool:
 	
@@ -102,9 +102,10 @@ func remesh():
 	
 	var index = 0
 	
-	for x in CHUNK_SIZE:
-		for y in CHUNK_SIZE:
-			for z in CHUNK_SIZE:
+	# TODO should ideally only remesh what changes
+	for x in GRID_SIZE:
+		for y in GRID_SIZE:
+			for z in GRID_SIZE:
 				
 				var tile_type = get_tile_type(Vector3i(x, y, z))
 				if (tile_type != 0):
