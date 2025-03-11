@@ -11,6 +11,10 @@ extends StaticBody3D
 
 # Basically, infinite worlds are boring actually
 
+# TODO add water!
+# I think I might make a simple water shader to put around my world so that
+# instead of floating in an infinite world it's a weird monolithic island in a vast ocean
+
 #add a mechanic where you can dig around and eat tiles inside the chunk, making you bigger
 #put a little icon of yourself in the top right to see how fat you are
 #when you consume the entire island, you win
@@ -19,8 +23,8 @@ extends StaticBody3D
 #BUT there's also a time limit, so it's kinda a fast-paced puzzle to get as fast as possible before level end
 #*fat as possible
 
-const GRID_SIZE : int = 32
-const GRID_SIZE_SQ : int = GRID_SIZE * GRID_SIZE
+@export var GRID_SIZE : int = 32
+var GRID_SIZE_SQ : int = GRID_SIZE * GRID_SIZE
 
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
@@ -158,6 +162,7 @@ func remesh(pos:Vector3i):
 # TODO still stutters because has to go over every tile, even though is no
 # longer calculating them. if this is a problem, we'll have to make multiple
 # meshes (mesh-chunks)
+# or use MultiMesh?
 func push_mesh():
 
 	# generate arrays representing the mesh

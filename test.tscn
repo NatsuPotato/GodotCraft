@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://tfrscubhl8rd"]
+[gd_scene load_steps=13 format=3 uid="uid://tfrscubhl8rd"]
 
 [ext_resource type="Script" path="res://player_controller.gd" id="3_ous5n"]
 [ext_resource type="Shader" path="res://inverted.gdshader" id="4_b0yie"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dmw76skmufda8" path="res://tile_grid.tscn" id="5_rroi4"]
 [ext_resource type="Script" path="res://pause_menu.gd" id="6_jgroj"]
 [ext_resource type="Script" path="res://debug_readout.gd" id="6_osfrn"]
+[ext_resource type="PackedScene" uid="uid://clekpgu2kvhph" path="res://water.obj" id="7_u7bnw"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ontqq"]
 
@@ -74,7 +75,8 @@ autowrap_mode = 0
 script = ExtResource("6_osfrn")
 PLAYER = NodePath("../Player")
 
-[node name="Chunk" parent="." instance=ExtResource("5_rroi4")]
+[node name="TileGrid" parent="." instance=ExtResource("5_rroi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -16)
 
 [node name="PauseMenu" type="Control" parent="."]
 layout_mode = 3
@@ -108,3 +110,6 @@ offset_bottom = -13.74
 grow_horizontal = 2
 grow_vertical = 2
 text = "Paused"
+
+[node name="Water" parent="." instance=ExtResource("7_u7bnw")]
+transform = Transform3D(100, 0, 0, 0, 0.5, 0, 0, 0, 100, 0, 0, 0)
