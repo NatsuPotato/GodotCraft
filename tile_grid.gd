@@ -20,15 +20,17 @@ extends StaticBody3D
 #*fat as possible
 
 const GRID_SIZE : int = 64
-const GRID_SIZE_SQ : int = 64
+const GRID_SIZE_SQ : int = GRID_SIZE * GRID_SIZE
 
 @export var MESH : MeshInstance3D
 @export var COLLIDER : CollisionShape3D
 
-var tile_type_data = PackedByteArray()
-var tile_mesh_data = []
+var tile_type_data := PackedByteArray()
+var tile_mesh_data := []
 
 func _ready():
+	
+	tile_mesh_data.resize(GRID_SIZE * GRID_SIZE * GRID_SIZE)
 	
 	var noise := FastNoiseLite.new()
 	noise.set_seed(RandomNumberGenerator.new().randi())
@@ -49,7 +51,18 @@ func _ready():
 				else:
 					tile_type_data.append(0)
 	
-	remesh()
+	# initialize mesh data
+	for x in GRID_SIZE:
+		for y in GRID_SIZE:
+			for z in GRID_SIZE:
+				remesh(Vector3i(x, y, z))
+	
+	# show the mesh
+	push_mesh()
+
+func get_index_from_pos(pos:Vector3i):
+	
+	return pos.x * GRID_SIZE_SQ + pos.y * GRID_SIZE + pos.z
 
 func get_tile_pos_from_raycast(raycast_result:Dictionary, on_surface:bool) -> Vector3i:
 	
@@ -71,15 +84,16 @@ func set_tile_type(pos:Vector3i, tile_type:int):
 	if (get_tile_pos_oob(pos)):
 		return
 	
-	tile_type_data[pos.x * GRID_SIZE_SQ + pos.y * GRID_SIZE + pos.z] = tile_type
-	remesh()
+	tile_type_data[get_index_from_pos(pos)] = tile_type
+	remesh(pos)
+	push_mesh()
 
 func get_tile_type(pos:Vector3i) -> int:
 	
 	if (get_tile_pos_oob(pos)):
 		return 0
 	
-	return tile_type_data[pos.x * GRID_SIZE_SQ + pos.y * GRID_SIZE + pos.z]
+	return tile_type_data[get_index_from_pos(pos)]
 
 func get_tile_pos_oob(pos:Vector3i) -> bool:
 	
@@ -89,7 +103,46 @@ func get_tile_is_transparent(pos:Vector3i) -> bool:
 	
 	return get_tile_type(pos) == 0
 
-func remesh():
+# remeshes a single block's entry in tile_mesh_data
+# typically you're gonna wanna remesh every block around a change
+func remesh(pos:Vector3i):
+	
+	var data := [
+		PackedVector3Array(), # verts
+		PackedVector2Array(), # uvs
+		PackedVector3Array(), # normals
+		PackedInt32Array(),   # indices
+		PackedVector3Array()  # collision_verts
+	]
+	
+	var tile_type = get_tile_type(pos)
+	if (tile_type != 0):
+		
+		var index = 0
+		
+		# hidden face optimization
+		#if get_tile_is_transparent(pos + Vector3i(1, 0, 0)):
+		index = generate_quad(index, pos, 0, tile_type, data[0], data[1], data[2], data[3], data[4])
+		
+		#if get_tile_is_transparent(pos + Vector3i(-1, 0, 0)):
+		index = generate_quad(index, pos, 1, tile_type, data[0], data[1], data[2], data[3], data[4])
+		
+		#if get_tile_is_transparent(pos + Vector3i(0, 1, 0)):
+		index = generate_quad(index, pos, 2, tile_type, data[0], data[1], data[2], data[3], data[4])
+		
+		#if get_tile_is_transparent(pos + Vector3i(0, -1, 0)):
+		index = generate_quad(index, pos, 3, tile_type, data[0], data[1], data[2], data[3], data[4])
+		
+		#if get_tile_is_transparent(pos + Vector3i(0, 0, 1)):
+		index = generate_quad(index, pos, 4, tile_type, data[0], data[1], data[2], data[3], data[4])
+			
+		#if get_tile_is_transparent(pos + Vector3i(0, 0, -1)):
+		index = generate_quad(index, pos, 5, tile_type, data[0], data[1], data[2], data[3], data[4])
+
+	tile_mesh_data[get_index_from_pos(pos)] = data
+
+# pushes tile_mesh_data to the world
+func push_mesh():
 
 	# generate arrays representing the mesh
 	var verts = PackedVector3Array()
@@ -97,37 +150,20 @@ func remesh():
 	var normals = PackedVector3Array()
 	var indices = PackedInt32Array()
 	
-	# naturally divided into triples that define triangles
-	var collision_verts = PackedVector3Array()
+	var collision_verts = PackedVector3Array() # naturally divided into triples that define triangles
 	
 	var index = 0
 	
-	# TODO should ideally only remesh what changes
-	for x in GRID_SIZE:
-		for y in GRID_SIZE:
-			for z in GRID_SIZE:
-				
-				var tile_type = get_tile_type(Vector3i(x, y, z))
-				if (tile_type != 0):
-					
-					# hidden face optimization
-					if get_tile_is_transparent(Vector3i(x + 1, y, z)):
-						index = generate_quad(index, Vector3(x, y, z), 0, tile_type, verts, uvs, normals, indices, collision_verts)
-					
-					if get_tile_is_transparent(Vector3i(x - 1, y, z)):
-						index = generate_quad(index, Vector3(x, y, z), 1, tile_type, verts, uvs, normals, indices, collision_verts)
-					
-					if get_tile_is_transparent(Vector3i(x, y + 1, z)):
-						index = generate_quad(index, Vector3(x, y, z), 2, tile_type, verts, uvs, normals, indices, collision_verts)
-					
-					if get_tile_is_transparent(Vector3i(x, y - 1, z)):
-						index = generate_quad(index, Vector3(x, y, z), 3, tile_type, verts, uvs, normals, indices, collision_verts)
-					
-					if get_tile_is_transparent(Vector3i(x, y, z + 1)):
-						index = generate_quad(index, Vector3(x, y, z), 4, tile_type, verts, uvs, normals, indices, collision_verts)
-						
-					if get_tile_is_transparent(Vector3i(x, y, z - 1)):
-						index = generate_quad(index, Vector3(x, y, z), 5, tile_type, verts, uvs, normals, indices, collision_verts)
+	for data in tile_mesh_data:
+		verts.append_array(data[0])
+		uvs.append_array(data[1])
+		normals.append_array(data[2])
+		collision_verts.append_array(data[4])
+		
+		for i in data[3]:
+			indices.append(i + index)
+		
+		index += data[0].size()
 
 	# create mesh and collision mesh from arrays
 	if (verts.size() != 0):
