@@ -19,7 +19,7 @@ extends StaticBody3D
 #BUT there's also a time limit, so it's kinda a fast-paced puzzle to get as fast as possible before level end
 #*fat as possible
 
-const GRID_SIZE : int = 64
+const GRID_SIZE : int = 32
 const GRID_SIZE_SQ : int = GRID_SIZE * GRID_SIZE
 
 @export var MESH : MeshInstance3D
@@ -85,7 +85,15 @@ func set_tile_type(pos:Vector3i, tile_type:int):
 		return
 	
 	tile_type_data[get_index_from_pos(pos)] = tile_type
+	
 	remesh(pos)
+	remesh_safe(pos + Vector3i( 1,  0,  0))
+	remesh_safe(pos + Vector3i(-1,  0,  0))
+	remesh_safe(pos + Vector3i( 0,  1,  0))
+	remesh_safe(pos + Vector3i( 0, -1,  0))
+	remesh_safe(pos + Vector3i( 0,  0,  1))
+	remesh_safe(pos + Vector3i( 0,  0, -1))
+	
 	push_mesh()
 
 func get_tile_type(pos:Vector3i) -> int:
@@ -105,6 +113,14 @@ func get_tile_is_transparent(pos:Vector3i) -> bool:
 
 # remeshes a single block's entry in tile_mesh_data
 # typically you're gonna wanna remesh every block around a change
+func remesh_safe(pos:Vector3i):
+	
+	if (!get_tile_pos_oob(pos)):
+		remesh(pos)
+
+# TODO still stutters because has to go over every block, even though is no
+# longer calculating them. if this is a problem, we'll have to make multiple
+# meshes (mesh-chunks)
 func remesh(pos:Vector3i):
 	
 	var data := [
@@ -121,23 +137,23 @@ func remesh(pos:Vector3i):
 		var index = 0
 		
 		# hidden face optimization
-		#if get_tile_is_transparent(pos + Vector3i(1, 0, 0)):
-		index = generate_quad(index, pos, 0, tile_type, data[0], data[1], data[2], data[3], data[4])
+		if get_tile_is_transparent(pos + Vector3i(1, 0, 0)):
+			index = generate_quad(index, pos, 0, tile_type, data[0], data[1], data[2], data[3], data[4])
 		
-		#if get_tile_is_transparent(pos + Vector3i(-1, 0, 0)):
-		index = generate_quad(index, pos, 1, tile_type, data[0], data[1], data[2], data[3], data[4])
+		if get_tile_is_transparent(pos + Vector3i(-1, 0, 0)):
+			index = generate_quad(index, pos, 1, tile_type, data[0], data[1], data[2], data[3], data[4])
 		
-		#if get_tile_is_transparent(pos + Vector3i(0, 1, 0)):
-		index = generate_quad(index, pos, 2, tile_type, data[0], data[1], data[2], data[3], data[4])
+		if get_tile_is_transparent(pos + Vector3i(0, 1, 0)):
+			index = generate_quad(index, pos, 2, tile_type, data[0], data[1], data[2], data[3], data[4])
 		
-		#if get_tile_is_transparent(pos + Vector3i(0, -1, 0)):
-		index = generate_quad(index, pos, 3, tile_type, data[0], data[1], data[2], data[3], data[4])
+		if get_tile_is_transparent(pos + Vector3i(0, -1, 0)):
+			index = generate_quad(index, pos, 3, tile_type, data[0], data[1], data[2], data[3], data[4])
 		
-		#if get_tile_is_transparent(pos + Vector3i(0, 0, 1)):
-		index = generate_quad(index, pos, 4, tile_type, data[0], data[1], data[2], data[3], data[4])
-			
-		#if get_tile_is_transparent(pos + Vector3i(0, 0, -1)):
-		index = generate_quad(index, pos, 5, tile_type, data[0], data[1], data[2], data[3], data[4])
+		if get_tile_is_transparent(pos + Vector3i(0, 0, 1)):
+			index = generate_quad(index, pos, 4, tile_type, data[0], data[1], data[2], data[3], data[4])
+		
+		if get_tile_is_transparent(pos + Vector3i(0, 0, -1)):
+			index = generate_quad(index, pos, 5, tile_type, data[0], data[1], data[2], data[3], data[4])
 
 	tile_mesh_data[get_index_from_pos(pos)] = data
 
@@ -160,6 +176,8 @@ func push_mesh():
 		normals.append_array(data[2])
 		collision_verts.append_array(data[4])
 		
+		# index data within tile_mesh_data is local to that one block
+		# we need to make it global to every block
 		for i in data[3]:
 			indices.append(i + index)
 		

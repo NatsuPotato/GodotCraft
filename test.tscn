@@ -35,7 +35,7 @@ shadow_enabled = true
 environment = SubResource("Environment_0x2lj")
 
 [node name="Player" type="CharacterBody3D" parent="." node_paths=PackedStringArray("camera")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 20, 16)
 script = ExtResource("3_ous5n")
 camera = NodePath("Camera3D")
 
